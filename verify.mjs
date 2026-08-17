@@ -15,7 +15,7 @@ import vm from 'node:vm';
 const DIR = dirname(fileURLToPath(import.meta.url));
 
 const HTML_FILES = ['index.html', 'resultate.html', 'inserat.html', 'inserieren.html', 'merkliste.html',
-  'impressum.html', 'datenschutz.html', 'kontakt.html', '404.html'];
+  'impressum.html', 'datenschutz.html', 'kontakt.html', '404.html', 'mein-bereich.html'];
 const ALL_FILES = [...HTML_FILES, 'styles.css', 'data.js', 'app.js'];
 
 let pass = 0;
@@ -377,6 +377,13 @@ if (Array.isArray(listings)) {
   const ohnePin = orteAlle.filter((o) => !src['resultate.html'].includes(`['${o}',`));
   check('21. jeder daten-ort hat einen karten-pin', ohnePin.length === 0, ohnePin.join(', '));
 }
+
+/* --- 22. inserenten-dashboard-demo (paket F, 17.08.2026) --- */
+check('22. mein-bereich.html: als demo-vorschau gekennzeichnet',
+  src['mein-bereich.html'].includes('Demo-Vorschau') && src['mein-bereich.html'].includes('Beispieldaten'));
+check('22. mein-bereich.html: verwaltungs-buttons ehrlich deaktiviert',
+  /disabled aria-disabled="true"/.test(src['mein-bereich.html']));
+check('22. inserieren.html verlinkt den demo-bereich', src['inserieren.html'].includes('mein-bereich.html'));
 
 /* --- 15. hero-hintergrundbild auf der startseite --- */
 check('15. index.html: hero-bild-element vorhanden', src['index.html'].includes('class="hero-bild"'));

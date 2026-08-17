@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="de-DE">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Mein Bereich · wohnsignal</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%2312100e'/%3E%3Ccircle cx='8' cy='8' r='3' fill='%238b3527'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/favicon.png">
+  <meta name="description" content="Demo-Vorschau des Inserenten-Bereichs – Inserate, Aufrufe und Anfragen als Beispieldaten.">
+  <meta property="og:site_name" content="wohnsignal">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="de_DE">
+  <meta property="og:title" content="Mein Bereich · wohnsignal">
+  <meta property="og:description" content="Demo-Vorschau des Inserenten-Bereichs – Inserate, Aufrufe und Anfragen als Beispieldaten.">
+  <meta property="og:url" content="https://marcelgaertner1234.github.io/wohnsignal/mein-bereich.html">
+  <meta property="og:image" content="https://marcelgaertner1234.github.io/wohnsignal/assets/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="styles.css?v=7">
+</head>
+<body>
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+  <!-- ws:header -->
+  <header class="site-header">
+    <div class="container site-header-innen">
+      <a class="logo" href="index.html">wohnsignal</a>
+      <nav class="hauptnav" aria-label="Hauptnavigation">
+        <a href="resultate.html?angebot=miete">Mieten</a>
+        <a href="resultate.html?angebot=kauf">Kaufen</a>
+        <a href="inserieren.html">Inserieren</a>
+        <a href="merkliste.html">Merkliste</a>
+      </nav>
+    </div>
+  </header>
+  <!-- /ws:header -->
+
+  <main id="main">
+    <style>
+      /* seiten-styling mein-bereich (demo-mock, prototyp-lokal) */
+      .stat-reihe { display: flex; flex-wrap: wrap; gap: 2rem 4.5rem; margin-top: 2.4rem; }
+      .inserat-zeile {
+        display: grid;
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+      @media (min-width: 760px) { .inserat-zeile { grid-template-columns: 1fr 1fr; } }
+      .inserat-status {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.7rem;
+        margin-top: 0.8rem;
+        font-size: 0.8rem;
+        color: var(--metall);
+      }
+      .inserat-status .btn { opacity: 0.45; cursor: not-allowed; }
+      .verlauf-svg { display: block; width: 100%; max-width: 560px; height: auto; margin-top: 1.4rem; border: 1px solid var(--linie); }
+    </style>
+
+    <section class="dunkel sektion">
+      <div class="container">
+        <p class="kicker">Portal / Mein Bereich</p>
+        <h1>Mein Bereich</h1>
+        <p class="section-note">So sieht die Inserats-Verwaltung im echten Portal aus — hier als klickbare Vorschau mit fiktiven Zahlen.</p>
+        <p class="hero-status"><span class="status-dot" aria-hidden="true"></span>Demo-Vorschau · alle Zahlen sind Beispieldaten, nichts ist verwaltbar</p>
+      </div>
+    </section>
+
+    <section class="hell hell--orthogonal">
+      <div class="container">
+        <p class="kicker">Überblick</p>
+        <h2>Letzte 30 Tage</h2>
+        <ul class="stat-reihe">
+          <li>
+            <p class="detail-preis">2</p>
+            <p class="kicker" style="margin-bottom:0">Aktive Inserate</p>
+          </li>
+          <li>
+            <p class="detail-preis">318</p>
+            <p class="kicker" style="margin-bottom:0">Aufrufe</p>
+          </li>
+          <li>
+            <p class="detail-preis">12</p>
+            <p class="kicker" style="margin-bottom:0">Anfragen</p>
+          </li>
+          <li>
+            <p class="detail-preis">9</p>
+            <p class="kicker" style="margin-bottom:0">Auf Merklisten</p>
+          </li>
+        </ul>
+        <p class="bildunterschrift" style="margin-top:1rem">Beispieldaten der Demo-Vorschau — im echten Portal stehen hier deine Live-Zahlen.</p>
+
+        <h3 style="margin-top:3rem">Aufrufe der letzten 14 Tage</h3>
+        <svg class="verlauf-svg" viewBox="0 0 560 180" role="img" aria-label="Beispiel-Balkendiagramm: Aufrufe der letzten 14 Tage zwischen 9 und 34 pro Tag">
+          <title>Aufrufe pro Tag (Beispieldaten)</title>
+          <rect width="560" height="180" fill="#f9f3e6"/>
+          <g fill="#a84a28" fill-opacity="0.85">
+            <rect x="24" y="96" width="22" height="60"/>
+            <rect x="60" y="84" width="22" height="72"/>
+            <rect x="96" y="108" width="22" height="48"/>
+            <rect x="132" y="72" width="22" height="84"/>
+            <rect x="168" y="90" width="22" height="66"/>
+            <rect x="204" y="120" width="22" height="36"/>
+            <rect x="240" y="128" width="22" height="28"/>
+            <rect x="276" y="76" width="22" height="80"/>
+            <rect x="312" y="60" width="22" height="96"/>
+            <rect x="348" y="88" width="22" height="68"/>
+            <rect x="384" y="52" width="22" height="104"/>
+            <rect x="420" y="68" width="22" height="88"/>
+            <rect x="456" y="44" width="22" height="112"/>
+            <rect x="492" y="56" width="22" height="100"/>
+          </g>
+          <line x1="12" y1="156" x2="548" y2="156" stroke="#c9b58e" stroke-width="2"/>
+          <text x="24" y="172" font-size="11" fill="#6f5f4c">vor 14 Tagen</text>
+          <text x="514" y="172" font-size="11" fill="#6f5f4c" text-anchor="end">heute</text>
+        </svg>
+      </div>
+    </section>
+
+    <section class="hell">
+      <div class="container">
+        <p class="kicker">Verwaltung</p>
+        <h2>Meine Inserate</h2>
+        <p class="section-note">Zwei Beispielinserate, wie sie ein Vermieter aus Mosbach verwalten würde. Bearbeiten und Pausieren sind in der Demo-Vorschau deaktiviert.</p>
+        <div class="inserat-zeile" id="meine-inserate"></div>
+        <noscript>
+          <p class="section-note">Diese Vorschau lädt die Beispielinserate per JavaScript.</p>
+        </noscript>
+      </div>
+    </section>
+
+    <section class="dunkel sektion">
+      <div class="container">
+        <p class="kicker">Ausblick</p>
+        <h2>Im echten Portal</h2>
+        <ol class="schritte" style="margin-top:1.6rem;max-width:640px">
+          <li class="schritt">
+            <div>
+              <h3>Inserate verwalten</h3>
+              <p class="section-note">Anlegen, bearbeiten, pausieren und archivieren — mit Moderations-Freigabe, bevor etwas live geht.</p>
+            </div>
+          </li>
+          <li class="schritt">
+            <div>
+              <h3>Anfragen im Postfach</h3>
+              <p class="section-note">Interessenten-Anfragen landen gesammelt im Portal-Postfach und per E-Mail — mit Verlauf je Inserat.</p>
+            </div>
+          </li>
+          <li class="schritt">
+            <div>
+              <h3>Zahlen live</h3>
+              <p class="section-note">Aufrufe, Merklisten und Anfragen pro Inserat in Echtzeit statt als Beispieldaten.</p>
+            </div>
+          </li>
+        </ol>
+        <p style="margin-top:2rem"><a class="btn btn--primaer" href="kontakt.html">Interesse am Portal? Kontakt aufnehmen</a></p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ws:footer -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>wohnsignal</h3>
+        <p class="footer-claim">Dein nächstes Zuhause sendet schon.</p>
+        <p class="footer-hinweis">Prototyp · alle Inserate sind beispieldaten</p>
+        <p class="footer-hinweis">Ein Demo-Projekt von TOMORROWWORKS</p>
+      </div>
+      <div>
+        <h3>Portal</h3>
+        <ul class="footer-liste">
+          <li><a href="resultate.html?angebot=miete">Wohnung mieten</a></li>
+          <li><a href="resultate.html?angebot=kauf">Wohnung kaufen</a></li>
+          <li><a href="inserieren.html">Inserat aufgeben</a></li>
+          <li><a href="merkliste.html">Merkliste</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Rechtliches</h3>
+        <ul class="footer-liste">
+          <li><a href="impressum.html">Impressum</a></li>
+          <li><a href="datenschutz.html">Datenschutz</a></li>
+          <li><a href="kontakt.html">Kontakt</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+  <!-- /ws:footer -->
+
+  <script src="data.js?v=4" defer></script>
+  <script src="app.js?v=5" defer></script>
+  <script>
+    /* mein-bereich — demo-mock: zwei mosbacher inserate mit statischen beispiel-statistiken */
+    document.addEventListener('DOMContentLoaded', function () {
+      'use strict';
+      if (!window.WS || !window.WS_DATA) { return; }
+
+      var STATISTIK = {
+        'ws-008': { status: 'Aktiv', aufrufe: 187, anfragen: 7 },
+        'ws-012': { status: 'Aktiv', aufrufe: 131, anfragen: 5 }
+      };
+
+      var wrap = document.getElementById('meine-inserate');
+      if (!wrap) { return; }
+      var html = '';
+      for (var id in STATISTIK) {
+        if (!Object.prototype.hasOwnProperty.call(STATISTIK, id)) { continue; }
+        var l = window.WS.getListing(id);
+        if (!l) { continue; }
+        var st = STATISTIK[id];
+        html += '<div>'
+          + window.WS.renderCard(l)
+          + '<p class="inserat-status">'
+          + '<span class="status-dot" aria-hidden="true"></span>' + st.status
+          + ' · ' + st.aufrufe + ' Aufrufe · ' + st.anfragen + ' Anfragen (Beispieldaten)'
+          + ' <button type="button" class="btn btn--sekundaer" disabled aria-disabled="true" title="In der Demo-Vorschau deaktiviert">Bearbeiten</button>'
+          + ' <button type="button" class="btn btn--sekundaer" disabled aria-disabled="true" title="In der Demo-Vorschau deaktiviert">Pausieren</button>'
+          + '</p>'
+          + '</div>';
+      }
+      wrap.innerHTML = html;
+      window.WS.syncFavButtons(wrap);
+    });
+  </script>
+</body>
+</html>
