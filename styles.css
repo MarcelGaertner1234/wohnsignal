@@ -15,6 +15,7 @@
   --chalk: #fbf6ec;
   --rust: #a84a28;                 /* terracotta-akzent — 5.4:1 auf chalk */
   --rust-dunkel: #8f3c1f;
+  --rust-text: #9c4424;            /* kicker-akzent — >=4.9:1 auch auf sand (a11y) */
   --metall: #6e6152;               /* sekundaertext auf hellem grund, AA */
   --grau-hell: #cbb9a4;            /* sekundaertext auf dunklen flaechen */
   --salbei: #6f7f5c;
@@ -118,10 +119,10 @@ h3 { font-size: 1.15rem; }
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--rust);
+  color: var(--rust-text);
   margin-bottom: 1rem;
 }
-.dunkel .kicker, .hero .kicker { color: var(--rust); }
+.dunkel .kicker, .hero .kicker { color: var(--rust-text); }
 
 .section-note { max-width: 56ch; color: var(--metall); }
 .dunkel .section-note, .hero .section-note { color: var(--metall); }
