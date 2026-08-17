@@ -15,7 +15,8 @@ import vm from 'node:vm';
 const DIR = dirname(fileURLToPath(import.meta.url));
 
 const HTML_FILES = ['index.html', 'resultate.html', 'inserat.html', 'inserieren.html', 'merkliste.html',
-  'impressum.html', 'datenschutz.html', 'kontakt.html', '404.html', 'mein-bereich.html'];
+  'impressum.html', 'datenschutz.html', 'kontakt.html', '404.html', 'mein-bereich.html',
+  'ratgeber.html', 'ratgeber-besichtigung.html', 'ratgeber-kaufnebenkosten.html', 'ratgeber-umzug.html'];
 const ALL_FILES = [...HTML_FILES, 'styles.css', 'data.js', 'app.js'];
 
 let pass = 0;
@@ -384,6 +385,20 @@ check('22. mein-bereich.html: als demo-vorschau gekennzeichnet',
 check('22. mein-bereich.html: verwaltungs-buttons ehrlich deaktiviert',
   /disabled aria-disabled="true"/.test(src['mein-bereich.html']));
 check('22. inserieren.html verlinkt den demo-bereich', src['inserieren.html'].includes('mein-bereich.html'));
+
+/* --- 23. ratgeber-bereich (paket E, 17.08.2026) --- */
+{
+  const ARTIKEL = ['ratgeber-besichtigung.html', 'ratgeber-kaufnebenkosten.html', 'ratgeber-umzug.html'];
+  const fehltUebersicht = ARTIKEL.filter((a) => !src['ratgeber.html'].includes(`href="${a}"`));
+  check('23. ratgeber.html verlinkt alle 3 artikel', fehltUebersicht.length === 0, fehltUebersicht.join(', '));
+  for (const a of ARTIKEL) {
+    check(`23. ${a}: zurueck-link zum ratgeber`, src[a].includes('href="ratgeber.html"'));
+    check(`23. ${a}: demo-/haftungs-hinweis vorhanden`,
+      src[a].includes('Demo-Inhalt des Prototyps') && /Rechts(?:-|beratung)/.test(src[a]));
+  }
+  const headerBlock = block(src['index.html'], '<!-- ws:header -->', '<!-- /ws:header -->') || '';
+  check('23. hauptnav enthaelt ratgeber-link', headerBlock.includes('href="ratgeber.html"'));
+}
 
 /* --- 15. hero-hintergrundbild auf der startseite --- */
 check('15. index.html: hero-bild-element vorhanden', src['index.html'].includes('class="hero-bild"'));
