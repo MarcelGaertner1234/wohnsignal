@@ -67,6 +67,13 @@
         clip-path: inset(50%);
         white-space: nowrap;
       }
+      /* kartenansicht: papier-zettel mit klickbaren orts-pins */
+      #karten-ansicht[hidden], .karten-grid[hidden] { display: none; }
+      #karten-svg svg { display: block; width: 100%; height: auto; border: 1px solid var(--linie); }
+      .karte-pin { cursor: pointer; }
+      .karte-pin:hover .pin-kreis, .karte-pin:focus-visible .pin-kreis { r: 13; }
+      .karte-pin:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+      .karte-pin[data-leer="true"] { cursor: default; opacity: 0.45; }
     </style>
 
     <!-- kompakter seitenkopf (kein grosser hero) -->
@@ -154,6 +161,13 @@
           </div>
           <button type="button" class="chip" id="chip-merkliste" aria-pressed="false">Nur Merkliste</button>
           <button type="button" class="btn btn--sekundaer" id="filter-reset">Filter zurücksetzen</button>
+          <div class="filter-gruppe" role="group" aria-label="Ansicht">
+            <span class="filterbar-label" aria-hidden="true">Ansicht</span>
+            <div class="segmente">
+              <button type="button" class="segment" data-ansicht="liste" aria-pressed="true">Liste</button>
+              <button type="button" class="segment" data-ansicht="karte" aria-pressed="false">Karte</button>
+            </div>
+          </div>
         </form>
       </div>
     </div>
@@ -166,6 +180,10 @@
           <p class="section-note">Für die Inseratliste bitte JavaScript aktivieren — dieser Prototyp rendert die Karten client-seitig.</p>
         </noscript>
         <div class="karten-grid" id="ergebnis-grid"></div>
+        <div id="karten-ansicht" hidden>
+          <p class="section-note" style="margin-bottom:1.2rem">Stilisierte Regionskarte — Lagen sind schematisch, keine Navigation. Tippe auf einen Ort, um die Inserate dort zu sehen.</p>
+          <div id="karten-svg"></div>
+        </div>
         <div class="ergebnis-leer" id="ergebnis-leer" hidden>
           <h2>Keine Inserate gefunden</h2>
           <p class="section-note">Kein Inserat passt zu deinen Filtern. Lockere die Kriterien — oder setze alles zurück und starte neu.</p>
@@ -229,9 +247,12 @@
       var flaecheFeld = document.getElementById('f-flaeche');
       var merkmalChips = form.querySelectorAll('.chip[data-merkmal]');
       var segmente = form.querySelectorAll('.segment[data-angebot]');
+      var ansichtSegmente = form.querySelectorAll('.segment[data-ansicht]');
+      var kartenAnsicht = document.getElementById('karten-ansicht');
+      var kartenSvg = document.getElementById('karten-svg');
       var resetBtns = [document.getElementById('filter-reset'), document.getElementById('leer-reset')];
 
-      var state = { angebot: '', ort: '', zimmer: '', flaeche: '', preis: '', sort: 'neu', merkliste: false, merkmale: [] };
+      var state = { angebot: '', ort: '', zimmer: '', flaeche: '', preis: '', sort: 'neu', merkliste: false, merkmale: [], ansicht: 'liste' };
       var erstesRendern = true;
 
       /* merkmal-chips filtern ueber synonym-listen, weil die daten freie strings tragen */
@@ -334,6 +355,72 @@
         return liste;
       }
 
+      /* ---------- stilisierte regionskarte (papier-stil wie der lageplan) ---------- */
+
+      /* schematische positionen im 800x560-raster — bewusst KEINE echte geografie */
+      var KARTE_ORTE = [
+        ['Mannheim', 130, 140],
+        ['Weinheim', 262, 100],
+        ['Heidelberg', 235, 235],
+        ['Neckargemünd', 330, 268],
+        ['Eberbach', 455, 215],
+        ['Mosbach', 565, 185],
+        ['Buchen', 655, 85],
+        ['Sinsheim', 390, 370],
+        ['Heilbronn', 540, 450]
+      ];
+
+      /* zaehlt treffer je ort mit allen aktiven filtern AUSSER dem ort-filter */
+      function gefiltertOhneOrt() {
+        var alt = state.ort;
+        state.ort = '';
+        var liste = gefiltert();
+        state.ort = alt;
+        return liste;
+      }
+
+      function renderKarte() {
+        var liste = gefiltertOhneOrt();
+        var counts = {};
+        for (var i = 0; i < liste.length; i++) {
+          counts[liste[i].ort] = (counts[liste[i].ort] || 0) + 1;
+        }
+        var s = '<rect width="800" height="560" fill="#f0e6d0"/>';
+        /* odenwald-huegel im nordosten */
+        var huegel = [[340, 120, 46], [420, 90, 38], [500, 130, 52], [590, 110, 40], [660, 150, 46], [430, 170, 32], [540, 70, 30], [620, 55, 34], [706, 100, 38], [712, 190, 30]];
+        for (var h = 0; h < huegel.length; h++) {
+          s += '<circle cx="' + huegel[h][0] + '" cy="' + huegel[h][1] + '" r="' + huegel[h][2] + '" fill="#cdd4b2" fill-opacity="0.55"/>';
+        }
+        s += '<text x="500" y="118" text-anchor="middle" font-size="14" letter-spacing="6" fill="#8a7a63" fill-opacity="0.8">ODENWALD</text>';
+        /* rhein links, neckar von heilbronn ueber mosbach und das neckartal nach mannheim */
+        s += '<path d="M 92 10 C 100 150 90 360 104 550" stroke="#9cc0c4" stroke-width="22" fill="none" stroke-linecap="round"/>';
+        s += '<path d="M 545 475 C 560 400 580 295 565 225 C 556 185 515 198 468 219 C 428 237 372 264 335 260 C 300 257 266 246 240 237 C 200 222 158 182 122 148" stroke="#9cc0c4" stroke-width="13" fill="none" stroke-linecap="round"/>';
+        s += '<text x="66" y="300" font-size="13" fill="#6f8a8e" transform="rotate(-84 66 300)">Rhein</text>';
+        s += '<text x="588" y="330" font-size="13" fill="#6f8a8e" transform="rotate(-80 588 330)">Neckar</text>';
+        /* orts-pins mit treffer-badge */
+        for (var o = 0; o < KARTE_ORTE.length; o++) {
+          var name = KARTE_ORTE[o][0];
+          var x = KARTE_ORTE[o][1];
+          var y = KARTE_ORTE[o][2];
+          var n = counts[name] || 0;
+          var leerPin = n === 0;
+          s += '<g class="karte-pin" data-ort="' + WS.escapeHtml(name) + '" data-leer="' + leerPin + '"'
+            + ' role="button" tabindex="' + (leerPin ? -1 : 0) + '"'
+            + ' aria-label="' + WS.escapeHtml(name) + ': ' + n + (n === 1 ? ' Inserat' : ' Inserate') + ' anzeigen">'
+            + '<circle cx="' + x + '" cy="' + y + '" r="20" fill="#a84a28" fill-opacity="0.14"/>'
+            + '<circle class="pin-kreis" cx="' + x + '" cy="' + y + '" r="11" fill="#a84a28"/>'
+            + '<circle cx="' + x + '" cy="' + y + '" r="4" fill="#f7ecd9"/>';
+          if (!leerPin) {
+            s += '<circle cx="' + (x + 15) + '" cy="' + (y - 15) + '" r="10" fill="#2a2118"/>'
+              + '<text x="' + (x + 15) + '" y="' + (y - 10.5) + '" text-anchor="middle" font-size="12" font-weight="700" fill="#f7ecd9">' + n + '</text>';
+          }
+          s += '<text x="' + x + '" y="' + (y + 36) + '" text-anchor="middle" font-size="15" font-weight="600" fill="#2a2118"'
+            + ' style="paint-order: stroke; stroke: #f0e6d0; stroke-width: 4px;">' + WS.escapeHtml(name) + '</text>'
+            + '</g>';
+        }
+        kartenSvg.innerHTML = '<svg viewBox="0 0 800 560" role="group" aria-label="Stilisierte Regionskarte mit Inserat-Orten" font-family="inherit">' + s + '</svg>';
+      }
+
       function syncControls() {
         for (var i = 0; i < segmente.length; i++) {
           segmente[i].setAttribute('aria-pressed', String(segmente[i].getAttribute('data-angebot') === state.angebot));
@@ -348,6 +435,9 @@
         for (var c = 0; c < merkmalChips.length; c++) {
           var key = merkmalChips[c].getAttribute('data-merkmal');
           merkmalChips[c].setAttribute('aria-pressed', String(state.merkmale.indexOf(key) > -1));
+        }
+        for (var an = 0; an < ansichtSegmente.length; an++) {
+          ansichtSegmente[an].setAttribute('aria-pressed', String(ansichtSegmente[an].getAttribute('data-ansicht') === state.ansicht));
         }
         syncNav();
       }
@@ -376,6 +466,7 @@
           if (state.merkmale.length) { p.set('merkmale', state.merkmale.join(',')); }
           if (state.sort !== 'neu') { p.set('sort', state.sort); }
           if (state.merkliste) { p.set('merkliste', '1'); }
+          if (state.ansicht !== 'liste') { p.set('ansicht', state.ansicht); }
           var q = p.toString();
           window.history.replaceState(null, '', window.location.pathname + (q ? '?' + q : ''));
         } catch (e) { /* alte browser / restriktives file:// — url-sync ist nur komfort */ }
@@ -383,6 +474,18 @@
 
       function render() {
         var liste = gefiltert();
+        if (state.ansicht === 'karte') {
+          zaehler.textContent = gefiltertOhneOrt().length + ' von ' + DATA.listings.length + ' Inseraten · Kartenansicht';
+          grid.hidden = true;
+          grid.innerHTML = '';
+          leer.hidden = true;
+          renderKarte();
+          kartenAnsicht.hidden = false;
+          erstesRendern = false;
+          return;
+        }
+        kartenAnsicht.hidden = true;
+        grid.hidden = false;
         zaehler.textContent = liste.length + ' von ' + DATA.listings.length + ' Inseraten';
         if (liste.length === 0) {
           grid.innerHTML = '';
@@ -449,6 +552,7 @@
       var qsort = WS.qs('sort');
       if (qsort && SORTS[qsort]) { state.sort = qsort; }
       if (WS.qs('merkliste') === '1') { state.merkliste = true; }
+      if (WS.qs('ansicht') === 'karte') { state.ansicht = 'karte'; }
 
       /* events: sofort filtern, kein submit noetig */
       form.addEventListener('submit', function (e) { e.preventDefault(); });
@@ -473,6 +577,24 @@
       }
       sortFeld.addEventListener('change', function () { state.sort = this.value; update(); });
       merkChip.addEventListener('click', function () { state.merkliste = !state.merkliste; update(); });
+      for (var av = 0; av < ansichtSegmente.length; av++) {
+        ansichtSegmente[av].addEventListener('click', function () {
+          state.ansicht = this.getAttribute('data-ansicht');
+          update();
+        });
+      }
+      /* pin-klick: ort uebernehmen und zurueck in die liste */
+      function pinAktion(e, tastatur) {
+        if (tastatur && e.key !== 'Enter' && e.key !== ' ') { return; }
+        var pin = e.target && e.target.closest ? e.target.closest('.karte-pin') : null;
+        if (!pin || pin.getAttribute('data-leer') === 'true') { return; }
+        if (tastatur) { e.preventDefault(); }
+        state.ort = pin.getAttribute('data-ort');
+        state.ansicht = 'liste';
+        update();
+      }
+      kartenSvg.addEventListener('click', function (e) { pinAktion(e, false); });
+      kartenSvg.addEventListener('keydown', function (e) { pinAktion(e, true); });
       for (var r = 0; r < resetBtns.length; r++) {
         if (resetBtns[r]) { resetBtns[r].addEventListener('click', reset); }
       }

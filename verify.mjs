@@ -367,6 +367,17 @@ check('20. inserat.html: druck-fusszeile mit demo-kennzeichnung',
 check('20. inserat.html: interaktives im druck ausgeblendet',
   /@media print[\s\S]*#anfrage[\s\S]*display:\s*none/.test(src['inserat.html']));
 
+/* --- 21. kartenansicht (paket D, 17.08.2026) --- */
+check('21. resultate.html: ansicht-toggle liste/karte', src['resultate.html'].includes('data-ansicht="karte"'));
+check('21. resultate.html: karten-svg-container vorhanden', src['resultate.html'].includes('id="karten-svg"'));
+check('21. resultate.html: karte ehrlich als schematisch gekennzeichnet',
+  src['resultate.html'].includes('Lagen sind schematisch'));
+if (Array.isArray(listings)) {
+  const orteAlle = [...new Set(listings.map((l) => l.ort))];
+  const ohnePin = orteAlle.filter((o) => !src['resultate.html'].includes(`['${o}',`));
+  check('21. jeder daten-ort hat einen karten-pin', ohnePin.length === 0, ohnePin.join(', '));
+}
+
 /* --- 15. hero-hintergrundbild auf der startseite --- */
 check('15. index.html: hero-bild-element vorhanden', src['index.html'].includes('class="hero-bild"'));
 check('15. styles.css: hero-bild referenziert assets/hero-zuhause.webp',
