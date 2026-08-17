@@ -124,7 +124,7 @@ for (const [label, a, b] of [
 
 /* ------------------------------------------------------------------ */
 /* 5. data.js: syntax, 16 inserate, 11 miete / 5 kauf, pflichtfelder,  */
-/*    kein "ß" (de-CH) in data.js + html-seiten                        */
+/*    de-DE-markt: kein "CHF" und kein kanton-/preisChf-rest           */
 /* ------------------------------------------------------------------ */
 const dataCheck = spawnSync(process.execPath, ['--check', join(DIR, 'data.js')], { encoding: 'utf8' });
 check('5. data.js: node --check ok', dataCheck.status === 0, (dataCheck.stderr || '').trim().split('\n')[0]);
@@ -154,7 +154,7 @@ if (Array.isArray(listings)) {
   const kauf = listings.filter((l) => l.angebot === 'kauf').length;
   check('5. data.js: 11 miete / 5 kauf', miete === 11 && kauf === 5, `ist: ${miete} miete / ${kauf} kauf`);
 
-  const PFLICHT = ['id', 'titel', 'typ', 'angebot', 'ort', 'kanton', 'strasse', 'preisChf',
+  const PFLICHT = ['id', 'titel', 'typ', 'angebot', 'ort', 'kreis', 'plz', 'strasse', 'preisEur',
     'zimmer', 'flaecheM2', 'etage', 'verfuegbarAb', 'merkmale', 'beschreibung', 'sceneHint', 'neu'];
   const defekte = [];
   for (const l of listings) {
@@ -173,8 +173,13 @@ if (Array.isArray(listings)) {
   check('5. data.js: alle pflichtfelder gesetzt', defekte.length === 0, defekte.slice(0, 6).join(', '));
 }
 
-for (const f of ['data.js', ...HTML_FILES]) {
-  check(`5. kein "ß" (de-CH): ${f}`, !src[f].includes('ß'));
+/* markt = DE/BW seit 17.08.2026: waehrung ist EUR, felder heissen kreis/preisEur */
+for (const f of ALL_FILES) {
+  check(`5. kein "CHF" (markt = DE/EUR): ${f}`, !src[f].includes('CHF'));
+}
+for (const f of ALL_FILES) {
+  const alt = ['preisChf', 'formatChf'].find((t) => src[f].includes(t));
+  check(`5. keine alt-feldnamen (preisChf/formatChf): ${f}`, !alt, alt || '');
 }
 
 /* ------------------------------------------------------------------ */
@@ -183,7 +188,7 @@ for (const f of ['data.js', ...HTML_FILES]) {
 const appCheck = spawnSync(process.execPath, ['--check', join(DIR, 'app.js')], { encoding: 'utf8' });
 check('6. app.js: node --check ok', appCheck.status === 0, (appCheck.stderr || '').trim().split('\n')[0]);
 
-for (const fn of ['formatPreis', 'renderScene', 'renderCard', 'getFavs', 'toggleFav']) {
+for (const fn of ['formatEur', 'formatPreis', 'renderScene', 'renderCard', 'getFavs', 'toggleFav']) {
   check(`6. app.js: function ${fn} definiert`, new RegExp(`function\\s+${fn}\\s*\\(`).test(src['app.js']));
 }
 
@@ -219,7 +224,7 @@ for (const f of HTML_FILES) {
 
   const h1s = (html.match(/<h1[\s>]/g) || []).length;
   check(`10. ${f}: genau ein <h1>`, h1s === 1, `gefunden: ${h1s}`);
-  check(`10. ${f}: <html lang="de-CH">`, /<html\s+lang="de-CH">/.test(html));
+  check(`10. ${f}: <html lang="de-DE">`, /<html\s+lang="de-DE">/.test(html));
   check(`10. ${f}: <main> vorhanden`, /<main[\s>]/.test(html));
 
   /* label-zuordnung: for/id, umschliessendes <label> oder aria-label */

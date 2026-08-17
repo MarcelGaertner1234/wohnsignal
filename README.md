@@ -1,6 +1,6 @@
 # wohnsignal
 
-Prototyp eines Schweizer Wohnungsinserate-Portals — statisches HTML/CSS/JS, ohne Build-Schritt.
+Prototyp eines Wohnungsinserate-Portals für Baden-Württemberg — statisches HTML/CSS/JS, ohne Build-Schritt.
 
 **Alle Inserate sind fiktive Beispieldaten.** Formulare senden keine Daten, die Seiten stehen auf `noindex`. Beispielfotos: siehe `MEDIA-LICENSES.md` (Pexels-Lizenz).
 

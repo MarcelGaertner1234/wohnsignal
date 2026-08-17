@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de-CH">
+<html lang="de-DE">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -85,7 +85,7 @@
       <div class="container">
         <div class="zettel-block">
           <h2 class="kicker">Galerie</h2>
-          <p class="section-note">Drei Ansichten desselben Objekts — Aussenansicht, Grundriss-Schema und Lageplan als Visualisierung. Das Kopfbild ist ein Beispielfoto und zeigt nicht das inserierte Objekt.</p>
+          <p class="section-note">Drei Ansichten desselben Objekts — Außenansicht, Grundriss-Schema und Lageplan als Visualisierung. Das Kopfbild ist ein Beispielfoto und zeigt nicht das inserierte Objekt.</p>
         </div>
         <div class="galerie-neben" id="galerie-liste"></div>
       </div>
@@ -128,7 +128,7 @@
         <div class="zettel-block">
           <p class="kicker">Weitere Signale</p>
           <h2>Ähnliche Inserate</h2>
-          <p class="section-note">Gleiche Angebotsart, gleicher Kanton oder ähnliche Zimmerzahl — deterministisch ausgewählt, keine Empfehlung.</p>
+          <p class="section-note">Gleiche Angebotsart, gleicher Landkreis oder ähnliche Zimmerzahl — deterministisch ausgewählt, keine Empfehlung.</p>
         </div>
         <div class="karten-grid" id="aehnliche-grid"></div>
       </div>
@@ -177,8 +177,8 @@
   </footer>
   <!-- /ws:footer -->
 
-  <script src="data.js?v=3" defer></script>
-  <script src="app.js?v=3" defer></script>
+  <script src="data.js?v=4" defer></script>
+  <script src="app.js?v=4" defer></script>
 <script>
 /* inserat.html — seitenlogik. laeuft nach data.js + app.js (beide defer),
    deshalb alles im DOMContentLoaded-handler. */
@@ -235,7 +235,7 @@
     var badges = '<span class="badge badge--beispiel">beispielinserat</span>';
     if (inserat.neu) { badges += ' <span class="badge badge--neu">neu</span>'; }
 
-    var adresse = inserat.strasse + ' · ' + inserat.ort + ' ' + inserat.kanton;
+    var adresse = inserat.strasse + ' · ' + inserat.plz + ' ' + inserat.ort;
 
     el('kopf-info').innerHTML =
       '<div class="detail-kopf">'
@@ -258,7 +258,8 @@
       ['Etage', inserat.etage],
       ['Verfügbar ab', inserat.verfuegbarAb],
       ['Typ', inserat.typ],
-      ['Angebot', inserat.angebot]
+      ['Angebot', inserat.angebot],
+      ['Landkreis', inserat.kreis]
     ];
     var faktenHtml = '<div class="zettel-block">'
       + '<h2 class="zettel-titel">Eckdaten</h2>'
@@ -281,15 +282,15 @@
     el('merkmale-liste').innerHTML = tagsHtml;
 
     /* ---------- kosten: dotted-leader-zeilen ---------- */
-    var proM2 = Math.round(inserat.preisChf / inserat.flaecheM2);
+    var proM2 = Math.round(inserat.preisEur / inserat.flaecheM2);
     var kosten = istMiete
       ? [
-          ['Monatsmiete', window.WS.formatChf(inserat.preisChf) + ' / mt.', true],
-          ['Preis pro m²', window.WS.formatChf(proM2) + ' / m² / mt.', false]
+          ['Monatsmiete', window.WS.formatEur(inserat.preisEur) + ' / Monat', true],
+          ['Preis pro m²', window.WS.formatEur(proM2) + ' / m² / Monat', false]
         ]
       : [
-          ['Kaufpreis', window.WS.formatChf(inserat.preisChf), true],
-          ['Preis pro m²', window.WS.formatChf(proM2) + ' / m²', false]
+          ['Kaufpreis', window.WS.formatEur(inserat.preisEur), true],
+          ['Preis pro m²', window.WS.formatEur(proM2) + ' / m²', false]
         ];
     var kostenHtml = '';
     for (var k = 0; k < kosten.length; k++) {
@@ -304,7 +305,7 @@
     /* ---------- galerie: drei ECHTE ansichten desselben objekts ----------
        01 aussenszene (wie im kopf), 02 grundriss-schema, 03 lageplan mit pin */
     var ansichten = [
-      [null, 'Aussenansicht'],
+      [null, 'Außenansicht'],
       ['grundriss', 'Grundriss-Schema'],
       ['karte', 'Lageplan']
     ];
@@ -341,17 +342,17 @@
     }
 
     /* ---------- aehnliche inserate: deterministisch, max 3 ----------
-       gleiche angebot-art UND (gleicher kanton ODER zimmerdiff <= 1);
-       sortierung: kanton-treffer zuerst, dann kleinste zimmerdiff, dann id. */
+       gleiche angebot-art UND (gleicher kreis ODER zimmerdiff <= 1);
+       sortierung: kreis-treffer zuerst, dann kleinste zimmerdiff, dann id. */
     var kandidaten = [];
     var alle = window.WS_DATA.listings;
     for (var a = 0; a < alle.length; a++) {
       var x = alle[a];
       if (x.id === inserat.id || x.angebot !== inserat.angebot) { continue; }
-      var gleicherKanton = x.kanton === inserat.kanton;
+      var gleicherKreis = x.kreis === inserat.kreis;
       var zimmerDiff = Math.abs(x.zimmer - inserat.zimmer);
-      if (gleicherKanton || zimmerDiff <= 1) {
-        kandidaten.push({ inserat: x, rang: gleicherKanton ? 0 : 1, zimmerDiff: zimmerDiff });
+      if (gleicherKreis || zimmerDiff <= 1) {
+        kandidaten.push({ inserat: x, rang: gleicherKreis ? 0 : 1, zimmerDiff: zimmerDiff });
       }
     }
     kandidaten.sort(function (a2, b2) {

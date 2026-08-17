@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de-CH">
+<html lang="de-DE">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -36,7 +36,7 @@
           <span class="zeile">Dein nächstes Zuhause</span>
           <span class="zeile">sendet schon.</span>
         </h1>
-        <p class="hero-sub">Wohnungen und Häuser in der ganzen Schweiz – klar beschrieben, ehrlich ausgezeichnet und ohne Umwege gefunden.</p>
+        <p class="hero-sub">Wohnungen und Häuser in Baden-Württemberg – klar beschrieben, ehrlich ausgezeichnet und ohne Umwege gefunden.</p>
 
         <form id="suchform" role="search" aria-label="Inseratsuche" action="resultate.html" method="get">
           <input type="hidden" name="angebot" id="such-angebot" value="miete">
@@ -50,18 +50,18 @@
             <input type="text" name="ort" id="such-ort" placeholder="Ort oder PLZ" aria-label="Ort oder PLZ" autocomplete="off">
             <select name="zimmer" id="such-zimmer" class="feld" aria-label="Zimmer ab">
               <option value="">Zimmer ab · beliebig</option>
-              <option value="1.5">Ab 1.5 Zi.</option>
-              <option value="2.5">Ab 2.5 Zi.</option>
-              <option value="3.5">Ab 3.5 Zi.</option>
-              <option value="4.5">Ab 4.5 Zi.</option>
+              <option value="2">Ab 2 Zimmern</option>
+              <option value="3">Ab 3 Zimmern</option>
+              <option value="4">Ab 4 Zimmern</option>
+              <option value="5">Ab 5 Zimmern</option>
             </select>
             <select name="preis" id="such-preis" class="feld" aria-label="Preis bis">
               <option value="">Preis bis · beliebig</option>
-              <option value="1500">Bis CHF 1'500 / Mt.</option>
-              <option value="2000">Bis CHF 2'000 / Mt.</option>
-              <option value="2500">Bis CHF 2'500 / Mt.</option>
-              <option value="3000">Bis CHF 3'000 / Mt.</option>
-              <option value="4000">Bis CHF 4'000 / Mt.</option>
+              <option value="600">Bis 600 € / Monat</option>
+              <option value="800">Bis 800 € / Monat</option>
+              <option value="1000">Bis 1.000 € / Monat</option>
+              <option value="1250">Bis 1.250 € / Monat</option>
+              <option value="1500">Bis 1.500 € / Monat</option>
             </select>
             <button type="submit" class="btn btn--primaer">Suchen</button>
           </div>
@@ -74,8 +74,8 @@
     <!-- ticker-band -->
     <div class="ticker">
       <div class="ticker-track">
-        <span>Dein nächstes Zuhause sendet schon · Mieten und Kaufen in der ganzen Schweiz · klar beschrieben · ehrlich ausgezeichnet · Prototyp mit Beispieldaten · </span>
-        <span aria-hidden="true">Dein nächstes Zuhause sendet schon · Mieten und Kaufen in der ganzen Schweiz · klar beschrieben · ehrlich ausgezeichnet · Prototyp mit Beispieldaten · </span>
+        <span>Dein nächstes Zuhause sendet schon · Mieten und Kaufen in Baden-Württemberg · klar beschrieben · ehrlich ausgezeichnet · Prototyp mit Beispieldaten · </span>
+        <span aria-hidden="true">Dein nächstes Zuhause sendet schon · Mieten und Kaufen in Baden-Württemberg · klar beschrieben · ehrlich ausgezeichnet · Prototyp mit Beispieldaten · </span>
       </div>
     </div>
 
@@ -174,8 +174,8 @@
   </footer>
   <!-- /ws:footer -->
 
-  <script src="data.js?v=3" defer></script>
-  <script src="app.js?v=3" defer></script>
+  <script src="data.js?v=4" defer></script>
+  <script src="app.js?v=4" defer></script>
   <script>
   (function () {
     'use strict';
@@ -188,8 +188,8 @@
       /* ---------- suchbox: toggle miete/kauf + preis-stufen ---------- */
 
       var PREIS_STUFEN = {
-        miete: [1500, 2000, 2500, 3000, 4000],
-        kauf: [750000, 1000000, 1250000, 1500000]
+        miete: [600, 800, 1000, 1250, 1500],
+        kauf: [350000, 500000, 650000, 800000]
       };
       var angebot = 'miete';
 
@@ -204,8 +204,8 @@
         var stufen = PREIS_STUFEN[angebot];
         var html = '<option value="">Preis bis · beliebig</option>';
         for (var i = 0; i < stufen.length; i++) {
-          html += '<option value="' + stufen[i] + '">Bis ' + WS.formatChf(stufen[i]).replace('chf', 'CHF')
-            + (angebot === 'miete' ? ' / Mt.' : '') + '</option>';
+          html += '<option value="' + stufen[i] + '">Bis ' + WS.formatEur(stufen[i])
+            + (angebot === 'miete' ? ' / Monat' : '') + '</option>';
         }
         preisSelect.innerHTML = html;
       }

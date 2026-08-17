@@ -39,24 +39,24 @@
   }
 
   function tausender(n) {
-    return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+    return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   }
 
-  /* "CHF 1'850" */
-  function formatChf(n) {
-    return 'CHF ' + tausender(n);
+  /* "1.850 €" (de-DE) */
+  function formatEur(n) {
+    return tausender(n) + ' €';
   }
 
-  /* miete: "CHF 2'380 / Mt." — kauf: "CHF 985'000" */
+  /* miete: "820 € / Monat" — kauf: "565.000 €" */
   function formatPreis(listing) {
-    var basis = formatChf(listing.preisChf);
-    return listing.angebot === 'miete' ? basis + ' / Mt.' : basis;
+    var basis = formatEur(listing.preisEur);
+    return listing.angebot === 'miete' ? basis + ' / Monat' : basis;
   }
 
-  /* akzeptiert listing ODER zahl; kurz=true -> "2.5 Zi.", sonst "2.5 Zimmer" */
+  /* akzeptiert listing ODER zahl; kurz=true -> "2,5 Zi.", sonst "2,5 Zimmer" (de-DE-komma) */
   function formatZimmer(x, kurz) {
     var z = (x && typeof x === 'object') ? x.zimmer : x;
-    return z + (kurz ? ' Zi.' : ' Zimmer');
+    return String(z).replace('.', ',') + (kurz ? ' Zi.' : ' Zimmer');
   }
 
   function qs(name) {
@@ -416,7 +416,7 @@
     industrie: { titel: 'industriefenster', bau: sceneIndustrie },
     garten: { titel: 'gartensitzplatz', bau: sceneGarten },
     neubau: { titel: 'neubaufassade', bau: sceneNeubau },
-    berge: { titel: 'aussicht auf see und berge', bau: sceneBerge },
+    berge: { titel: 'weitblick über das tal', bau: sceneBerge },
     haus: { titel: 'haus am hang', bau: sceneHaus },
     fluss: { titel: 'flusslage', bau: sceneFluss },
     /* nur per sceneOverride (galerie) — nie via sceneKey gewaehlt */
@@ -435,7 +435,7 @@
     if (hint.indexOf('neubau') > -1) { return 'neubau'; }
     if (hint.indexOf('gartensitzplatz') > -1 || hint.indexOf('spielplatz') > -1) { return 'garten'; }
     if (hint.indexOf('innenhof') > -1 || hint.indexOf('stuck') > -1) { return 'innenhof'; }
-    if (typ === 'wohnung' || typ === 'studio' || typ === 'attika') { return 'fassade'; }
+    if (typ === 'wohnung' || typ === 'studio' || typ === 'penthouse') { return 'fassade'; }
     var keys = ['fassade', 'innenhof', 'garten', 'neubau', 'berge'];
     return keys[idSeed(listing.id) % keys.length];
   }
@@ -498,7 +498,7 @@
       + '<span class="media-status-label">' + formatZimmer(listing, true) + ' · ' + listing.flaecheM2 + ' m²</span>'
       + '</div>'
       + '<div class="karte-body">'
-      + '<p class="karte-ort">' + escapeHtml(listing.ort) + ' ' + escapeHtml(listing.kanton) + ' · ' + escapeHtml(listing.strasse) + '</p>'
+      + '<p class="karte-ort">' + escapeHtml(listing.plz) + ' ' + escapeHtml(listing.ort) + ' · ' + escapeHtml(listing.strasse) + '</p>'
       + '<h3 class="karte-titel"><a href="' + href + '">' + escapeHtml(listing.titel) + '</a></h3>'
       + '<p class="karte-preis">' + formatPreis(listing)
       + (listing.angebot === 'kauf' ? ' <span class="preis-zusatz">Kaufpreis</span>' : '')
@@ -568,7 +568,7 @@
   /* ---------- api ---------- */
 
   window.WS = {
-    formatChf: formatChf,
+    formatEur: formatEur,
     formatPreis: formatPreis,
     formatZimmer: formatZimmer,
     renderScene: renderScene,

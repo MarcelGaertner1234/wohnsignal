@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de-CH">
+<html lang="de-DE">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -79,36 +79,35 @@
           </div>
           <div class="filter-gruppe">
             <label class="filterbar-label" for="f-ort">Ort oder PLZ</label>
-            <input class="feld" id="f-ort" type="search" placeholder="z. B. Bern oder 3007" autocomplete="off">
+            <input class="feld" id="f-ort" type="search" placeholder="z. B. Mosbach oder 74821" autocomplete="off">
           </div>
           <div class="filter-gruppe">
             <label class="filterbar-label" for="f-zimmer">Zimmer ab</label>
             <select class="feld" id="f-zimmer">
               <option value="">Alle Zimmer</option>
-              <option value="1.5">Ab 1.5 Zi.</option>
-              <option value="2.5">Ab 2.5 Zi.</option>
-              <option value="3.5">Ab 3.5 Zi.</option>
-              <option value="4.5">Ab 4.5 Zi.</option>
-              <option value="5.5">Ab 5.5 Zi.</option>
+              <option value="2">Ab 2 Zi.</option>
+              <option value="3">Ab 3 Zi.</option>
+              <option value="4">Ab 4 Zi.</option>
+              <option value="5">Ab 5 Zi.</option>
             </select>
           </div>
           <div class="filter-gruppe">
             <label class="filterbar-label" for="f-preis">Preis bis</label>
             <select class="feld" id="f-preis">
               <option value="">Alle Preise</option>
-              <optgroup label="Miete / Mt.">
-                <option value="1500">Bis CHF 1'500</option>
-                <option value="1750">Bis CHF 1'750</option>
-                <option value="2000">Bis CHF 2'000</option>
-                <option value="2500">Bis CHF 2'500</option>
-                <option value="3000">Bis CHF 3'000</option>
-                <option value="4000">Bis CHF 4'000</option>
+              <optgroup label="Miete / Monat">
+                <option value="600">Bis 600 €</option>
+                <option value="800">Bis 800 €</option>
+                <option value="1000">Bis 1.000 €</option>
+                <option value="1250">Bis 1.250 €</option>
+                <option value="1500">Bis 1.500 €</option>
+                <option value="2000">Bis 2.000 €</option>
               </optgroup>
               <optgroup label="Kauf">
-                <option value="800000">Bis CHF 800'000</option>
-                <option value="1000000">Bis CHF 1'000'000</option>
-                <option value="1250000">Bis CHF 1'250'000</option>
-                <option value="1500000">Bis CHF 1'500'000</option>
+                <option value="350000">Bis 350.000 €</option>
+                <option value="500000">Bis 500.000 €</option>
+                <option value="650000">Bis 650.000 €</option>
+                <option value="800000">Bis 800.000 €</option>
               </optgroup>
             </select>
           </div>
@@ -172,8 +171,8 @@
   </footer>
   <!-- /ws:footer -->
 
-  <script src="data.js?v=3" defer></script>
-  <script src="app.js?v=3" defer></script>
+  <script src="data.js?v=4" defer></script>
+  <script src="app.js?v=4" defer></script>
   <script>
   /* resultate.html — seitenlogik: filtern, sortieren, url-sync (laeuft nach data.js/app.js, da DOMContentLoaded) */
   (function () {
@@ -201,27 +200,27 @@
 
       /* preis-stufen je angebot — das select zeigt nur passende optionen (wie index.html) */
       var PREIS_STUFEN = {
-        miete: [1500, 1750, 2000, 2500, 3000, 4000],
-        kauf: [800000, 1000000, 1250000, 1500000]
+        miete: [600, 800, 1000, 1250, 1500, 2000],
+        kauf: [350000, 500000, 650000, 800000]
       };
 
       function preisOptgroup(art, label) {
         var html = '<optgroup label="' + label + '">';
         for (var i = 0; i < PREIS_STUFEN[art].length; i++) {
           var w = PREIS_STUFEN[art][i];
-          html += '<option value="' + w + '">Bis ' + WS.formatChf(w).replace('chf', 'CHF') + '</option>';
+          html += '<option value="' + w + '">Bis ' + WS.formatEur(w) + '</option>';
         }
         return html + '</optgroup>';
       }
 
       function fuellePreisSelect() {
         var html = '<option value="">Alle Preise</option>';
-        if (state.angebot !== 'kauf') { html += preisOptgroup('miete', 'Miete / Mt.'); }
+        if (state.angebot !== 'kauf') { html += preisOptgroup('miete', 'Miete / Monat'); }
         if (state.angebot !== 'miete') { html += preisOptgroup('kauf', 'Kauf'); }
         preisFeld.innerHTML = html;
         /* url-werte ausserhalb der stufen als option nachtragen */
         if (state.preis) {
-          ensureOption(preisFeld, state.preis, 'Bis ' + WS.formatChf(parseInt(state.preis, 10)).replace('chf', 'CHF'));
+          ensureOption(preisFeld, state.preis, 'Bis ' + WS.formatEur(parseInt(state.preis, 10)));
         }
       }
 
@@ -239,8 +238,8 @@
       function idAbsteigend(a, b) { return a.id < b.id ? 1 : (a.id > b.id ? -1 : 0); }
       var SORTS = {
         'neu': function (a, b) { if (a.neu !== b.neu) { return a.neu ? -1 : 1; } return idAbsteigend(a, b); },
-        'preis-auf': function (a, b) { return (a.preisChf - b.preisChf) || idAbsteigend(a, b); },
-        'preis-ab': function (a, b) { return (b.preisChf - a.preisChf) || idAbsteigend(a, b); },
+        'preis-auf': function (a, b) { return (a.preisEur - b.preisEur) || idAbsteigend(a, b); },
+        'preis-ab': function (a, b) { return (b.preisEur - a.preisEur) || idAbsteigend(a, b); },
         'flaeche-ab': function (a, b) { return (b.flaecheM2 - a.flaecheM2) || idAbsteigend(a, b); }
       };
 
@@ -256,10 +255,10 @@
         select.appendChild(opt);
       }
 
-      /* umlaut-faltung: "zuerich" findet "zürich" und umgekehrt */
+      /* umlaut-/eszett-faltung: "neckargemuend" findet "neckargemünd", "strasse" findet "straße" */
       function falte(s) {
         return s.toLowerCase()
-          .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue');
+          .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss');
       }
 
       function gefiltert() {
@@ -267,9 +266,9 @@
         var ort = falte(state.ort.trim());
         var liste = DATA.listings.filter(function (l) {
           if (state.angebot && l.angebot !== state.angebot) { return false; }
-          if (ort && falte(l.ort + ' ' + l.kanton + ' ' + (l.plz || '')).indexOf(ort) === -1) { return false; }
+          if (ort && falte(l.ort + ' ' + l.kreis + ' ' + (l.plz || '')).indexOf(ort) === -1) { return false; }
           if (state.zimmer && !(l.zimmer >= parseFloat(state.zimmer))) { return false; }
-          if (state.preis && !(l.preisChf <= parseInt(state.preis, 10))) { return false; }
+          if (state.preis && !(l.preisEur <= parseInt(state.preis, 10))) { return false; }
           if (state.merkliste && favs.indexOf(l.id) === -1) { return false; }
           return true;
         });
@@ -359,12 +358,12 @@
       var qz = WS.qs('zimmer');
       if (qz && !isNaN(parseFloat(qz))) {
         state.zimmer = String(parseFloat(qz));
-        ensureOption(zimmerFeld, state.zimmer, 'Ab ' + state.zimmer + ' Zi.');
+        ensureOption(zimmerFeld, state.zimmer, 'Ab ' + WS.formatZimmer(parseFloat(qz), true));
       }
       var qp = WS.qs('preis');
       if (qp && !isNaN(parseInt(qp, 10))) {
         state.preis = String(parseInt(qp, 10));
-        ensureOption(preisFeld, state.preis, 'Bis ' + WS.formatChf(parseInt(qp, 10)).replace('chf', 'CHF'));
+        ensureOption(preisFeld, state.preis, 'Bis ' + WS.formatEur(parseInt(qp, 10)));
       }
       var qsort = WS.qs('sort');
       if (qsort && SORTS[qsort]) { state.sort = qsort; }

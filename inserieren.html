@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de-CH">
+<html lang="de-DE">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -98,7 +98,7 @@
                       <option value="wohnung" selected>Wohnung</option>
                       <option value="studio">Studio</option>
                       <option value="loft">Loft</option>
-                      <option value="attika">Attika</option>
+                      <option value="penthouse">Penthouse</option>
                       <option value="haus">Haus</option>
                     </select>
                   </div>
@@ -115,17 +115,17 @@
                     <label for="zimmer">Zimmer</label>
                     <select id="zimmer" name="zimmer">
                       <option value="1">1</option>
-                      <option value="1.5">1.5</option>
+                      <option value="1.5">1,5</option>
                       <option value="2">2</option>
-                      <option value="2.5">2.5</option>
-                      <option value="3">3</option>
-                      <option value="3.5" selected>3.5</option>
+                      <option value="2.5">2,5</option>
+                      <option value="3" selected>3</option>
+                      <option value="3.5">3,5</option>
                       <option value="4">4</option>
-                      <option value="4.5">4.5</option>
+                      <option value="4.5">4,5</option>
                       <option value="5">5</option>
-                      <option value="5.5">5.5</option>
+                      <option value="5.5">5,5</option>
                       <option value="6">6</option>
-                      <option value="6.5">6.5</option>
+                      <option value="6.5">6,5</option>
                     </select>
                   </div>
                   <div>
@@ -142,49 +142,36 @@
               <section class="zettel-block" aria-labelledby="zt-lage">
                 <h2 class="zettel-titel" id="zt-lage">Lage</h2>
                 <div>
-                  <label for="strasse">Strasse und Nummer</label>
+                  <label for="strasse">Straße und Hausnummer</label>
                   <input id="strasse" name="strasse" type="text" placeholder="z. B. Musterweg 12">
                 </div>
                 <div class="feld-reihe">
                   <div>
                     <label for="plz">PLZ</label>
-                    <input id="plz" name="plz" type="text" inputmode="numeric" maxlength="4" placeholder="z. B. 3800">
+                    <input id="plz" name="plz" type="text" inputmode="numeric" maxlength="5" placeholder="z. B. 74821">
                   </div>
                   <div>
                     <label for="ort">Ort</label>
-                    <input id="ort" name="ort" type="text" placeholder="z. B. Interlaken">
+                    <input id="ort" name="ort" type="text" placeholder="z. B. Mosbach">
                   </div>
                 </div>
                 <div>
-                  <label for="kanton">Kanton</label>
-                  <select id="kanton" name="kanton">
-                    <option value="" selected>Kanton wählen</option>
-                    <option value="AG">Aargau (AG)</option>
-                    <option value="AI">Appenzell Innerrhoden (AI)</option>
-                    <option value="AR">Appenzell Ausserrhoden (AR)</option>
-                    <option value="BE">Bern (BE)</option>
-                    <option value="BL">Basel-Landschaft (BL)</option>
-                    <option value="BS">Basel-Stadt (BS)</option>
-                    <option value="FR">Freiburg (FR)</option>
-                    <option value="GE">Genf (GE)</option>
-                    <option value="GL">Glarus (GL)</option>
-                    <option value="GR">Graubünden (GR)</option>
-                    <option value="JU">Jura (JU)</option>
-                    <option value="LU">Luzern (LU)</option>
-                    <option value="NE">Neuenburg (NE)</option>
-                    <option value="NW">Nidwalden (NW)</option>
-                    <option value="OW">Obwalden (OW)</option>
-                    <option value="SG">St. Gallen (SG)</option>
-                    <option value="SH">Schaffhausen (SH)</option>
-                    <option value="SO">Solothurn (SO)</option>
-                    <option value="SZ">Schwyz (SZ)</option>
-                    <option value="TG">Thurgau (TG)</option>
-                    <option value="TI">Tessin (TI)</option>
-                    <option value="UR">Uri (UR)</option>
-                    <option value="VD">Waadt (VD)</option>
-                    <option value="VS">Wallis (VS)</option>
-                    <option value="ZG">Zug (ZG)</option>
-                    <option value="ZH">Zürich (ZH)</option>
+                  <label for="kreis">Landkreis / Stadtkreis</label>
+                  <select id="kreis" name="kreis">
+                    <option value="" selected>Kreis wählen</option>
+                    <option value="Neckar-Odenwald-Kreis">Neckar-Odenwald-Kreis</option>
+                    <option value="Rhein-Neckar-Kreis">Rhein-Neckar-Kreis</option>
+                    <option value="Stadtkreis Heidelberg">Stadtkreis Heidelberg</option>
+                    <option value="Stadtkreis Mannheim">Stadtkreis Mannheim</option>
+                    <option value="Stadtkreis Heilbronn">Stadtkreis Heilbronn</option>
+                    <option value="Landkreis Heilbronn">Landkreis Heilbronn</option>
+                    <option value="Hohenlohekreis">Hohenlohekreis</option>
+                    <option value="Main-Tauber-Kreis">Main-Tauber-Kreis</option>
+                    <option value="Landkreis Karlsruhe">Landkreis Karlsruhe</option>
+                    <option value="Stadtkreis Karlsruhe">Stadtkreis Karlsruhe</option>
+                    <option value="Landkreis Ludwigsburg">Landkreis Ludwigsburg</option>
+                    <option value="Stadtkreis Stuttgart">Stadtkreis Stuttgart</option>
+                    <option value="anderer">Anderer Kreis (Baden-Württemberg)</option>
                   </select>
                 </div>
               </section>
@@ -193,8 +180,8 @@
                 <h2 class="zettel-titel" id="zt-konditionen">Konditionen</h2>
                 <div class="feld-reihe">
                   <div>
-                    <label for="preis" id="preis-label">Preis (CHF pro Monat)</label>
-                    <input id="preis" name="preis" type="number" inputmode="numeric" min="1" step="1" placeholder="z. B. 1850">
+                    <label for="preis" id="preis-label">Miete (€ pro Monat)</label>
+                    <input id="preis" name="preis" type="number" inputmode="numeric" min="1" step="1" placeholder="z. B. 850">
                   </div>
                   <div>
                     <label for="verfuegbar">Verfügbar ab</label>
@@ -207,14 +194,14 @@
                   <div class="merkmale-gruppe" role="group" aria-labelledby="merkmale-label">
                     <label class="merkmal"><input type="checkbox" name="merkmale" value="balkon"><span>Balkon</span></label>
                     <label class="merkmal"><input type="checkbox" name="merkmale" value="terrasse"><span>Terrasse</span></label>
-                    <label class="merkmal"><input type="checkbox" name="merkmale" value="lift"><span>Lift</span></label>
+                    <label class="merkmal"><input type="checkbox" name="merkmale" value="aufzug"><span>Aufzug</span></label>
                     <label class="merkmal"><input type="checkbox" name="merkmale" value="einbauküche"><span>Einbauküche</span></label>
                     <label class="merkmal"><input type="checkbox" name="merkmale" value="parkett"><span>Parkett</span></label>
-                    <label class="merkmal"><input type="checkbox" name="merkmale" value="kellerabteil"><span>Kellerabteil</span></label>
-                    <label class="merkmal"><input type="checkbox" name="merkmale" value="gartensitzplatz"><span>Gartensitzplatz</span></label>
-                    <label class="merkmal"><input type="checkbox" name="merkmale" value="einstellplatz"><span>Einstellplatz</span></label>
-                    <label class="merkmal"><input type="checkbox" name="merkmale" value="velokeller"><span>Velokeller</span></label>
-                    <label class="merkmal"><input type="checkbox" name="merkmale" value="minergie"><span>Minergie</span></label>
+                    <label class="merkmal"><input type="checkbox" name="merkmale" value="kellerraum"><span>Kellerraum</span></label>
+                    <label class="merkmal"><input type="checkbox" name="merkmale" value="gartenanteil"><span>Gartenanteil</span></label>
+                    <label class="merkmal"><input type="checkbox" name="merkmale" value="tg-stellplatz"><span>TG-Stellplatz</span></label>
+                    <label class="merkmal"><input type="checkbox" name="merkmale" value="fahrradkeller"><span>Fahrradkeller</span></label>
+                    <label class="merkmal"><input type="checkbox" name="merkmale" value="energieeffizient"><span>Energieeffizient</span></label>
                     <label class="merkmal"><input type="checkbox" name="merkmale" value="haustiere erlaubt"><span>Haustiere erlaubt</span></label>
                   </div>
                 </div>
@@ -237,7 +224,7 @@
                   </div>
                   <div>
                     <label for="kontakt-email">E-Mail</label>
-                    <input id="kontakt-email" name="kontakt-email" type="email" autocomplete="email" placeholder="name@beispiel.ch">
+                    <input id="kontakt-email" name="kontakt-email" type="email" autocomplete="email" placeholder="name@beispiel.de">
                   </div>
                 </div>
               </section>
@@ -320,8 +307,8 @@
   </footer>
   <!-- /ws:footer -->
 
-  <script src="data.js?v=3" defer></script>
-  <script src="app.js?v=3" defer></script>
+  <script src="data.js?v=4" defer></script>
+  <script src="app.js?v=4" defer></script>
   <script>
     /* seiten-logik inserieren — laeuft nach data.js/app.js (defer), daher in DOMContentLoaded */
     document.addEventListener('DOMContentLoaded', function () {
@@ -345,31 +332,32 @@
       function buildListing() {
         var typ = feldwert('typ') || 'wohnung';
         var zimmer = parseFloat(feldwert('zimmer'));
-        if (isNaN(zimmer)) { zimmer = 3.5; }
+        if (isNaN(zimmer)) { zimmer = 3; }
         var flaeche = parseInt(feldwert('flaeche'), 10);
         if (isNaN(flaeche) || flaeche < 1) { flaeche = 80; }
         var preis = parseInt(feldwert('preis'), 10);
-        if (isNaN(preis) || preis < 1) { preis = (angebot === 'miete') ? 1850 : 850000; }
+        if (isNaN(preis) || preis < 1) { preis = (angebot === 'miete') ? 850 : 450000; }
         var ort = feldwert('ort') || 'musterort';
         var merkmale = [];
         var boxes = form.querySelectorAll('input[name="merkmale"]:checked');
         for (var i = 0; i < boxes.length; i++) { merkmale.push(boxes[i].value); }
         return {
           id: 'ws-vorschau',
-          titel: zimmer + '-zimmer-' + typ + ' in ' + ort,
+          titel: String(zimmer).replace('.', ',') + '-zimmer-' + typ + ' in ' + ort,
           typ: typ,
           angebot: angebot,
           ort: ort,
-          kanton: feldwert('kanton') || 'ch',
+          kreis: feldwert('kreis') || 'baden-württemberg',
+          plz: feldwert('plz') || '74821',
           strasse: feldwert('strasse') || 'musterweg 12',
-          preisChf: preis,
+          preisEur: preis,
           zimmer: zimmer,
           flaecheM2: flaeche,
           etage: feldwert('etage') || '3. og',
           verfuegbarAb: feldwert('verfuegbar') || 'nach vereinbarung',
           merkmale: merkmale,
           beschreibung: feldwert('beschreibung'),
-          sceneHint: (typ === 'attika') ? 'terrasse' : '',
+          sceneHint: (typ === 'penthouse') ? 'terrasse' : '',
           neu: true
         };
       }
@@ -398,11 +386,11 @@
           segmente[i].setAttribute('aria-pressed', String(segmente[i].getAttribute('data-angebot') === neu));
         }
         if (neu === 'miete') {
-          preisLabel.textContent = 'Preis (CHF pro Monat)';
-          preisInput.placeholder = 'z. B. 1850';
+          preisLabel.textContent = 'Miete (€ pro Monat)';
+          preisInput.placeholder = 'z. B. 850';
         } else {
-          preisLabel.textContent = 'Kaufpreis (CHF)';
-          preisInput.placeholder = 'z. B. 850000';
+          preisLabel.textContent = 'Kaufpreis (€)';
+          preisInput.placeholder = 'z. B. 450000';
         }
         render();
       }
