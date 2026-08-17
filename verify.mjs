@@ -16,7 +16,8 @@ const DIR = dirname(fileURLToPath(import.meta.url));
 
 const HTML_FILES = ['index.html', 'resultate.html', 'inserat.html', 'inserieren.html', 'merkliste.html',
   'impressum.html', 'datenschutz.html', 'kontakt.html', '404.html', 'mein-bereich.html',
-  'ratgeber.html', 'ratgeber-besichtigung.html', 'ratgeber-kaufnebenkosten.html', 'ratgeber-umzug.html'];
+  'ratgeber.html', 'ratgeber-besichtigung.html', 'ratgeber-kaufnebenkosten.html', 'ratgeber-umzug.html',
+  'anmelden.html'];
 const ALL_FILES = [...HTML_FILES, 'styles.css', 'data.js', 'app.js'];
 
 let pass = 0;
@@ -423,6 +424,20 @@ if (Array.isArray(listings)) {
 }
 check('24. inserat.html: galerie rendert inserat.fotos mit symbolbild-kennzeichnung',
   src['inserat.html'].includes('inserat.fotos') && src['inserat.html'].includes('Symbolbild'));
+
+/* --- 25. demo-anmeldung ohne credentials (17.08.2026) --- */
+/* wahrheitsregel: die statische demo darf NIE zugangsdaten abfragen */
+for (const f of HTML_FILES) {
+  check(`25. kein passwort-feld: ${f}`, !/type\s*=\s*"password"/i.test(src[f]));
+}
+check('25. anmelden.html: keine eingabefelder (klick-demo statt fake-login)',
+  !/<(?:input|textarea)\b/i.test(stripScripts(src['anmelden.html'])));
+check('25. anmelden.html: als demo ohne zugangsdaten gekennzeichnet',
+  src['anmelden.html'].includes('keine Zugangsdaten') && src['anmelden.html'].includes('Demo'));
+check('25. anmelden.html: fuehrt zum beispiel-konto (mein-bereich)',
+  src['anmelden.html'].includes('href="mein-bereich.html"'));
+check('25. hauptnav enthaelt anmelden-link',
+  (block(src['index.html'], '<!-- ws:header -->', '<!-- /ws:header -->') || '').includes('href="anmelden.html"'));
 
 /* --- 15. hero-hintergrundbild auf der startseite --- */
 check('15. index.html: hero-bild-element vorhanden', src['index.html'].includes('class="hero-bild"'));
