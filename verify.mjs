@@ -14,7 +14,8 @@ import vm from 'node:vm';
 
 const DIR = dirname(fileURLToPath(import.meta.url));
 
-const HTML_FILES = ['index.html', 'resultate.html', 'inserat.html', 'inserieren.html', 'merkliste.html'];
+const HTML_FILES = ['index.html', 'resultate.html', 'inserat.html', 'inserieren.html', 'merkliste.html',
+  'impressum.html', 'datenschutz.html', 'kontakt.html', '404.html'];
 const ALL_FILES = [...HTML_FILES, 'styles.css', 'data.js', 'app.js'];
 
 let pass = 0;
@@ -306,6 +307,30 @@ try {
     undok.map((l) => l.foto).join(', '));
 } catch (e) {
   check('14. MEDIA-LICENSES.md vorhanden', false, String(e.message || e));
+}
+
+/* --- 16. rechtsseiten & footer-verdrahtung (paket 2, 17.08.2026) --- */
+{
+  for (const f of HTML_FILES) {
+    const fb = block(src[f], '<!-- ws:footer -->', '<!-- /ws:footer -->') || '';
+    check(`16. footer ohne tote "#"-links: ${f}`, !fb.includes('href="#"'));
+    const fehlend = ['impressum.html', 'datenschutz.html', 'kontakt.html'].filter((z) => !fb.includes(`href="${z}"`));
+    check(`16. footer verlinkt rechtsseiten: ${f}`, fehlend.length === 0, fehlend.join(', '));
+  }
+  check('16. footer nennt TOMORROWWORKS (demo-branding)',
+    (block(src['index.html'], '<!-- ws:footer -->', '<!-- /ws:footer -->') || '').includes('TOMORROWWORKS'));
+  check('16. impressum.html: DDG-bezug vorhanden', src['impressum.html'].includes('§ 5'));
+  check('16. impressum.html: entwurfs-hinweis (juristische pruefung)',
+    src['impressum.html'].includes('juristisch geprüft'));
+  check('16. datenschutz.html: localStorage transparent erklaert',
+    src['datenschutz.html'].includes('localStorage'));
+  check('16. datenschutz.html: entwurfs-hinweis (juristische pruefung)',
+    src['datenschutz.html'].includes('juristisch geprüft'));
+  check('16. kontakt.html: TOMORROWWORKS-bezug', src['kontakt.html'].includes('TOMORROWWORKS'));
+  /* solange marcels angaben fehlen, MUESSEN die platzhalter sichtbar sein —
+     sobald echte angaben drin sind, diesen check invertieren/entfernen */
+  check('16. impressum.html: platzhalter ODER echte angaben ohne web.de',
+    src['impressum.html'].includes('[INHABER') || !src['impressum.html'].includes('web.de'));
 }
 
 /* --- 15. hero-hintergrundbild auf der startseite --- */
