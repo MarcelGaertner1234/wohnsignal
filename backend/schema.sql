@@ -1,11 +1,24 @@
 -- wohnsignal — supabase-schema (phase 2)
--- einspielen im supabase sql-editor (einmalig, idempotent wo moeglich).
+-- einspielen im supabase sql-editor (einmalig, idempotent — gefahrlos wiederholbar).
 -- KEINE geheimnisse in dieser datei — sie liegt bewusst im oeffentlichen repo.
 
+-- funktions-koerper erst zur laufzeit pruefen (sonst scheitert eine funktion,
+-- die eine weiter unten definierte tabelle erwaehnt, schon beim anlegen)
+set check_function_bodies = off;
+
 -- ------------------------------------------------------------------
--- 0. helfer: ist der angemeldete nutzer admin?
---    security definer bricht die rls-rekursion auf profile.
+-- 1. profile — 1:1 zu auth.users, wird per trigger angelegt
+--    (tabelle ZUERST: die helfer-funktion ist_admin referenziert sie)
 -- ------------------------------------------------------------------
+create table if not exists public.profile (
+  id uuid primary key references auth.users (id) on delete cascade,
+  name text not null default '',
+  rolle text not null default 'inserent' check (rolle in ('inserent', 'admin')),
+  created_at timestamptz not null default now()
+);
+
+-- helfer: ist der angemeldete nutzer admin?
+-- security definer bricht die rls-rekursion auf profile.
 create or replace function public.ist_admin()
 returns boolean
 language sql stable security definer
@@ -16,16 +29,6 @@ as $$
     where id = auth.uid() and rolle = 'admin'
   );
 $$;
-
--- ------------------------------------------------------------------
--- 1. profile — 1:1 zu auth.users, wird per trigger angelegt
--- ------------------------------------------------------------------
-create table if not exists public.profile (
-  id uuid primary key references auth.users (id) on delete cascade,
-  name text not null default '',
-  rolle text not null default 'inserent' check (rolle in ('inserent', 'admin')),
-  created_at timestamptz not null default now()
-);
 
 alter table public.profile enable row level security;
 
