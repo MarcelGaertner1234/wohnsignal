@@ -351,9 +351,25 @@ try {
 
 /* --- 15. hero-hintergrundbild auf der startseite --- */
 check('15. index.html: hero-bild-element vorhanden', src['index.html'].includes('class="hero-bild"'));
-check('15. styles.css: hero-bild referenziert assets/hero-zuhause.jpg',
-  src['styles.css'].includes('assets/hero-zuhause.jpg'));
-check('15. assets/hero-zuhause.jpg vorhanden', existsSync(join(DIR, 'assets/hero-zuhause.jpg')));
+check('15. styles.css: hero-bild referenziert assets/hero-zuhause.webp',
+  src['styles.css'].includes('assets/hero-zuhause.webp'));
+check('15. assets/hero-zuhause.webp vorhanden', existsSync(join(DIR, 'assets/hero-zuhause.webp')));
+check('15. assets/hero-zuhause.jpg (quelle) vorhanden', existsSync(join(DIR, 'assets/hero-zuhause.jpg')));
+
+/* --- 18. webp-auslieferung mit jpg-fallback (paket 4, 17.08.2026) --- */
+if (Array.isArray(listings)) {
+  const ohneWebp = listings.filter((l) => {
+    if (!l.foto) { return false; }
+    const basis = l.foto.replace(/\.jpg$/, '');
+    return !existsSync(join(DIR, basis + '-640.webp')) || !existsSync(join(DIR, basis + '.webp'));
+  });
+  check('18. jede foto-quelle hat -640.webp und .webp', ohneWebp.length === 0,
+    ohneWebp.map((l) => l.id).join(', '));
+}
+check('18. app.js: renderCard liefert <picture> mit webp-source',
+  src['app.js'].includes('<picture>') && src['app.js'].includes('image/webp'));
+check('18. inserat.html: kopfbild als <picture> mit webp-source',
+  src['inserat.html'].includes('image/webp'));
 
 /* ------------------------------------------------------------------ */
 console.log('');

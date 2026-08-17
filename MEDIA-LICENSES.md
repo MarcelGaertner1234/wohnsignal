@@ -3,6 +3,10 @@
 Alle Beispielfotos stammen von **Pexels** (kostenlose Pexels-Lizenz: Nutzung und
 Bearbeitung erlaubt, keine Namensnennung erforderlich — https://www.pexels.com/license/).
 Heruntergeladen am 16.08.2026 in 1200px-Breite, lokal gespeichert unter `assets/`.
+Die `.webp`-Dateien (`*-640.webp`, `*.webp`, 17.08.2026) sind komprimierte Ableitungen
+derselben Quellen (cwebp) — gleiche Lizenz, gleiche Zuordnung wie die Tabelle unten.
+`og-image.jpg` (Link-Vorschau) verwendet `hero-zuhause.jpg` als Bildanteil; `favicon.png`
+ist Eigenleistung.
 
 **Wichtig:** Die Fotos sind Symbolbilder. Sie zeigen NICHT die (fiktiven) inserierten
 Objekte und werden im Prototyp entsprechend gekennzeichnet („Beispielfoto (Symbolbild)").

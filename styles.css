@@ -235,7 +235,7 @@ h3 { font-size: 1.15rem; }
   width: min(58%, 860px);
   background:
     linear-gradient(200deg, rgba(244, 236, 221, 0) 55%, rgba(244, 236, 221, 0.55) 100%),
-    url("assets/hero-zuhause.jpg") right 38% / cover no-repeat;
+    url("assets/hero-zuhause.webp") right 38% / cover no-repeat;
   -webkit-mask-image: linear-gradient(to left, rgba(0, 0, 0, 0.96) 42%, transparent 97%);
   mask-image: linear-gradient(to left, rgba(0, 0, 0, 0.96) 42%, transparent 97%);
   filter: saturate(0.94);

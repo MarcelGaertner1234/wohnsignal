@@ -485,9 +485,18 @@
     if (merkmale.length > 3) {
       tags += '<li class="tag tag--mehr">+' + (merkmale.length - 3) + '</li>';
     }
-    var media = listing.foto
-      ? '<img src="' + escapeHtml(listing.foto) + '" alt="" loading="lazy">'
-      : renderScene(listing, 'card');
+    var media;
+    if (listing.foto) {
+      /* webp-varianten (640 fuer karten, 1200 als reserve) mit jpg-fallback */
+      var fotoBasis = escapeHtml(listing.foto.replace(/\.jpg$/, ''));
+      media = '<picture>'
+        + '<source type="image/webp" srcset="' + fotoBasis + '-640.webp 640w, ' + fotoBasis + '.webp 1200w"'
+        + ' sizes="(min-width: 900px) 30vw, 92vw">'
+        + '<img src="' + escapeHtml(listing.foto) + '" alt="" loading="lazy">'
+        + '</picture>';
+    } else {
+      media = renderScene(listing, 'card');
+    }
     return '<article class="karte" data-id="' + id + '">'
       + '<div class="karte-media">'
       + '<a class="karte-media-link" href="' + href + '" tabindex="-1" aria-hidden="true">'
