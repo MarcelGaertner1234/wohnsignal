@@ -44,6 +44,8 @@
     <style>
       /* galerie: echte beispielfotos fuellen die thumbs randlos */
       .galerie-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      /* honeypot: fuer menschen unsichtbar und unerreichbar, bots fuellen es */
+      .hp-falle { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
       /* expose-druckansicht — nur inserat.html. bildschirm bleibt unangetastet. */
       .print-fuss { display: none; }
       @media print {
@@ -156,6 +158,10 @@
             <label for="anfrage-nachricht">Nachricht</label>
             <textarea id="anfrage-nachricht" name="nachricht" required></textarea>
           </div>
+          <div class="hp-falle" aria-hidden="true">
+            <label for="anfrage-webseite">Webseite (bitte leer lassen)</label>
+            <input type="text" id="anfrage-webseite" name="webseite" tabindex="-1" autocomplete="off">
+          </div>
           <div>
             <button type="submit" class="btn btn--primaer">Anfrage senden</button>
           </div>
@@ -221,6 +227,7 @@
   </footer>
   <!-- /ws:footer -->
 
+  <script src="konfig.js?v=1" defer></script>
   <script src="data.js?v=5" defer></script>
   <script src="app.js?v=5" defer></script>
 <script>
@@ -382,26 +389,80 @@
     }
     el('galerie-liste').innerHTML = galerieHtml;
 
-    /* ---------- anfrage-formular: vorschau-modus, kein versand ---------- */
+    /* ---------- anfrage-formular ----------
+       phase 2: mit konfiguriertem endpunkt wird ECHT gesendet (edge function);
+       ohne konfiguration bleibt der ehrliche vorschau-modus. */
     var formular = el('anfrage-formular');
     var statusMeldung = el('anfrage-status');
     var nachrichtFeld = el('anfrage-nachricht');
+    var endpunkt = (window.WS_KONFIG && window.WS_KONFIG.anfrageEndpunkt) || '';
     if (nachrichtFeld && !nachrichtFeld.value) {
       nachrichtFeld.value = 'Guten Tag\n\nIch interessiere mich für das Inserat «'
         + inserat.titel.toLowerCase() + '» in ' + inserat.ort.toLowerCase()
         + '. Gerne würde ich eine Besichtigung vereinbaren.';
     }
+    if (endpunkt) {
+      /* die vorschau-texte stimmen jetzt nicht mehr — ehrlich umschalten */
+      var anfrageNote = document.querySelector('#anfrage .section-note');
+      if (anfrageNote) {
+        anfrageNote.textContent = 'Stelle deine Frage direkt zum Inserat — sie geht an das wohnsignal-Postfach, die Antwort kommt per E-Mail. (Die Inserate selbst sind weiterhin Beispieldaten.)';
+      }
+      var vorschauHinweis = formular ? formular.querySelector('.form-hinweis') : null;
+      if (vorschauHinweis) {
+        vorschauHinweis.textContent = 'Mit dem Absenden stimmst du der Verarbeitung deiner Angaben gemäß Datenschutzerklärung zu.';
+      }
+    }
     if (formular) {
       formular.addEventListener('submit', function (e) {
-        e.preventDefault(); /* niemals senden — vorschau-modus */
+        e.preventDefault();
         if (formular.checkValidity && !formular.checkValidity()) {
           if (formular.reportValidity) { formular.reportValidity(); }
           return;
         }
-        if (statusMeldung) {
-          statusMeldung.hidden = false;
-          try { statusMeldung.focus(); } catch (err) { /* egal */ }
+        if (!endpunkt) {
+          /* vorschau-modus: nichts verlaesst den browser */
+          if (statusMeldung) {
+            statusMeldung.hidden = false;
+            try { statusMeldung.focus(); } catch (err) { /* egal */ }
+          }
+          return;
         }
+        var sendeknopf = formular.querySelector('button[type="submit"]');
+        if (sendeknopf) { sendeknopf.disabled = true; }
+        if (statusMeldung) {
+          statusMeldung.textContent = 'Anfrage wird gesendet …';
+          statusMeldung.hidden = false;
+        }
+        var hp = formular.querySelector('input[name="webseite"]');
+        fetch(endpunkt, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            inseratId: inserat.id,
+            inseratTitel: inserat.titel,
+            name: el('anfrage-name').value.trim(),
+            email: el('anfrage-email').value.trim(),
+            nachricht: el('anfrage-nachricht').value.trim(),
+            webseite: hp ? hp.value : ''
+          })
+        }).then(function (res) {
+          return res.json().catch(function () { return {}; }).then(function (d) {
+            return { ok: res.ok && d.ok === true, fehler: d.fehler };
+          });
+        }).then(function (r) {
+          if (statusMeldung) {
+            statusMeldung.textContent = r.ok
+              ? 'Danke! Deine Anfrage wurde übermittelt — die Antwort kommt per E-Mail.'
+              : 'Senden fehlgeschlagen' + (r.fehler ? ' (' + r.fehler + ')' : '') + ' — bitte versuche es später erneut.';
+            try { statusMeldung.focus(); } catch (err) { /* egal */ }
+          }
+        }).catch(function () {
+          if (statusMeldung) {
+            statusMeldung.textContent = 'Senden fehlgeschlagen — bitte prüfe deine Verbindung und versuche es erneut.';
+          }
+        }).then(function () {
+          if (sendeknopf) { sendeknopf.disabled = false; }
+        });
       });
     }
 

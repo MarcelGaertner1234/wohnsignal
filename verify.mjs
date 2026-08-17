@@ -18,7 +18,13 @@ const HTML_FILES = ['index.html', 'resultate.html', 'inserat.html', 'inserieren.
   'impressum.html', 'datenschutz.html', 'kontakt.html', '404.html', 'mein-bereich.html',
   'ratgeber.html', 'ratgeber-besichtigung.html', 'ratgeber-kaufnebenkosten.html', 'ratgeber-umzug.html',
   'anmelden.html'];
-const ALL_FILES = [...HTML_FILES, 'styles.css', 'data.js', 'app.js'];
+const ALL_FILES = [...HTML_FILES, 'styles.css', 'data.js', 'app.js', 'konfig.js'];
+
+/* REGELWECHSEL 17.08.2026 (phase 2, marcel-go; doku: GO-LIVE §phase-2-kickoff):
+   GENAU EIN externer host ist erlaubt — unser eigenes supabase-backend.
+   alles andere (cdns, fonts, tracker, fremde apis) bleibt verboten. */
+const ERLAUBTER_BACKEND_HOST = 'qxffxypzagjqonpkxayk.supabase.co';
+const maskiereBackend = (s) => s.split('https://' + ERLAUBTER_BACKEND_HOST).join('intern-backend');
 
 let pass = 0;
 let fail = 0;
@@ -80,11 +86,12 @@ const EXTERN_PATTERNS = [
   [/\bnew\s+WebSocket\s*\(/i, 'WebSocket']
 ];
 for (const f of ALL_FILES) {
+  const quelle = maskiereBackend(src[f]);
   let hit = null;
   for (const [re, label] of EXTERN_PATTERNS) {
-    if (re.test(src[f])) { hit = label; break; }
+    if (re.test(quelle)) { hit = label; break; }
   }
-  check(`3. keine externen ressourcen: ${f}`, hit === null, hit || '');
+  check(`3. keine externen ressourcen (ausser eigenem backend): ${f}`, hit === null, hit || '');
 }
 
 /* ------------------------------------------------------------------ */
@@ -438,6 +445,16 @@ check('25. anmelden.html: fuehrt zum beispiel-konto (mein-bereich)',
   src['anmelden.html'].includes('href="mein-bereich.html"'));
 check('25. hauptnav enthaelt anmelden-link',
   (block(src['index.html'], '<!-- ws:header -->', '<!-- /ws:header -->') || '').includes('href="anmelden.html"'));
+
+/* --- 26. anfrage-formular produktiv (P2-1, 17.08.2026) --- */
+check('26. konfig.js: anfrageEndpunkt zeigt auf den erlaubten backend-host',
+  src['konfig.js'].includes(`https://${ERLAUBTER_BACKEND_HOST}/functions/v1/anfrage`));
+check('26. inserat.html: bindet konfig.js ein', src['inserat.html'].includes('konfig.js?v='));
+check('26. inserat.html: echt-versand haengt an WS_KONFIG.anfrageEndpunkt',
+  src['inserat.html'].includes('WS_KONFIG') && src['inserat.html'].includes('anfrageEndpunkt'));
+check('26. inserat.html: honeypot-feld vorhanden', src['inserat.html'].includes('name="webseite"'));
+check('26. inserat.html: vorschau-fallback ohne konfiguration bleibt bestehen',
+  src['inserat.html'].includes('vorschau-modus: nichts verlaesst den browser'));
 
 /* --- 15. hero-hintergrundbild auf der startseite --- */
 check('15. index.html: hero-bild-element vorhanden', src['index.html'].includes('class="hero-bild"'));
