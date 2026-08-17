@@ -41,6 +41,8 @@
 
   <main id="main">
     <style>
+      /* galerie: echte beispielfotos fuellen die thumbs randlos */
+      .galerie-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
       /* expose-druckansicht — nur inserat.html. bildschirm bleibt unangetastet. */
       .print-fuss { display: none; }
       @media print {
@@ -124,7 +126,7 @@
       <div class="container">
         <div class="zettel-block">
           <h2 class="kicker">Galerie</h2>
-          <p class="section-note">Drei Ansichten desselben Objekts — Außenansicht, Grundriss-Schema und Lageplan als Visualisierung. Das Kopfbild ist ein Beispielfoto und zeigt nicht das inserierte Objekt.</p>
+          <p class="section-note">Weitere Beispielfotos (Symbolbilder) sowie Grundriss-Schema und Lageplan als Visualisierung. Die Fotos zeigen nicht das inserierte Objekt.</p>
         </div>
         <div class="galerie-neben" id="galerie-liste"></div>
       </div>
@@ -218,7 +220,7 @@
   </footer>
   <!-- /ws:footer -->
 
-  <script src="data.js?v=4" defer></script>
+  <script src="data.js?v=5" defer></script>
   <script src="app.js?v=5" defer></script>
 <script>
 /* inserat.html — seitenlogik. laeuft nach data.js + app.js (beide defer),
@@ -354,18 +356,27 @@
     }
     el('kosten-liste').innerHTML = kostenHtml;
 
-    /* ---------- galerie: drei ECHTE ansichten desselben objekts ----------
-       01 aussenszene (wie im kopf), 02 grundriss-schema, 03 lageplan mit pin */
+    /* ---------- galerie: echte beispielfotos + grundriss-schema + lageplan ---------- */
+    var galerieHtml = '';
+    var zusatz = inserat.fotos || [];
+    for (var zf = 0; zf < zusatz.length; zf++) {
+      var zBasis = esc(zusatz[zf].replace(/\.jpg$/, ''));
+      galerieHtml += '<figure class="reveal">'
+        + '<div class="galerie-thumb"><picture>'
+        + '<source type="image/webp" srcset="' + zBasis + '-640.webp">'
+        + '<img src="' + esc(zusatz[zf]) + '" alt="Beispielfoto (Symbolbild) — zeigt nicht das inserierte Objekt" loading="lazy">'
+        + '</picture></div>'
+        + '<figcaption class="bildunterschrift">Beispielfoto 0' + (zf + 1) + ' · Symbolbild</figcaption>'
+        + '</figure>';
+    }
     var ansichten = [
-      [null, 'Außenansicht'],
       ['grundriss', 'Grundriss-Schema'],
       ['karte', 'Lageplan']
     ];
-    var galerieHtml = '';
     for (var g = 0; g < ansichten.length; g++) {
       galerieHtml += '<figure class="reveal">'
         + '<div class="galerie-thumb">' + window.WS.renderScene(inserat, 'thumb', ansichten[g][0]) + '</div>'
-        + '<figcaption class="bildunterschrift">Ansicht 0' + (g + 1) + ' · ' + ansichten[g][1] + '</figcaption>'
+        + '<figcaption class="bildunterschrift">Ansicht 0' + (zusatz.length + g + 1) + ' · ' + ansichten[g][1] + '</figcaption>'
         + '</figure>';
     }
     el('galerie-liste').innerHTML = galerieHtml;

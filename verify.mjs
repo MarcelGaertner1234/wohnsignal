@@ -400,6 +400,30 @@ check('22. inserieren.html verlinkt den demo-bereich', src['inserieren.html'].in
   check('23. hauptnav enthaelt ratgeber-link', headerBlock.includes('href="ratgeber.html"'));
 }
 
+/* --- 24. foto-galerien (paket A, 17.08.2026) --- */
+if (Array.isArray(listings)) {
+  const ohneGalerie = listings.filter((l) => !Array.isArray(l.fotos) || l.fotos.length < 2);
+  check('24. jedes inserat hat >=2 galerie-fotos', ohneGalerie.length === 0,
+    ohneGalerie.map((l) => l.id).join(', '));
+  const fehlend = [];
+  for (const l of listings) {
+    for (const f of (l.fotos || [])) {
+      const basis = f.replace(/\.jpg$/, '');
+      if (!existsSync(join(DIR, f)) || !existsSync(join(DIR, basis + '-640.webp'))) { fehlend.push(f); }
+    }
+  }
+  check('24. alle galerie-dateien inkl. webp vorhanden', fehlend.length === 0, fehlend.slice(0, 4).join(', '));
+  try {
+    const lizenz2 = readFileSync(join(DIR, 'MEDIA-LICENSES.md'), 'utf8');
+    const undok2 = listings.flatMap((l) => l.fotos || []).filter((f) => !lizenz2.includes(f.replace('assets/', '')));
+    check('24. MEDIA-LICENSES dokumentiert alle galerie-fotos', undok2.length === 0, undok2.slice(0, 4).join(', '));
+  } catch (e) {
+    check('24. MEDIA-LICENSES lesbar', false, String(e.message || e));
+  }
+}
+check('24. inserat.html: galerie rendert inserat.fotos mit symbolbild-kennzeichnung',
+  src['inserat.html'].includes('inserat.fotos') && src['inserat.html'].includes('Symbolbild'));
+
 /* --- 15. hero-hintergrundbild auf der startseite --- */
 check('15. index.html: hero-bild-element vorhanden', src['index.html'].includes('class="hero-bild"'));
 check('15. styles.css: hero-bild referenziert assets/hero-zuhause.webp',

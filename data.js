@@ -9,6 +9,7 @@ window.WS_DATA = {
     {
       id: "ws-001",
       foto: "assets/foto-ws-001.jpg",
+      fotos: ["assets/foto-ws-001-b.jpg", "assets/foto-ws-001-c.jpg"],
       titel: "Helle 2,5-Zimmer-Wohnung nahe Straßenbahn",
       typ: "wohnung",
       angebot: "miete",
@@ -29,6 +30,7 @@ window.WS_DATA = {
     {
       id: "ws-002",
       foto: "assets/foto-ws-002.jpg",
+      fotos: ["assets/foto-ws-002-b.jpg", "assets/foto-ws-002-c.jpg"],
       titel: "Kompaktes Studio mit Innenhofblick",
       typ: "studio",
       angebot: "miete",
@@ -49,6 +51,7 @@ window.WS_DATA = {
     {
       id: "ws-003",
       foto: "assets/foto-ws-003.jpg",
+      fotos: ["assets/foto-ws-003-b.jpg", "assets/foto-ws-003-c.jpg"],
       titel: "Loft in ehemaliger Weberei",
       typ: "loft",
       angebot: "miete",
@@ -69,6 +72,7 @@ window.WS_DATA = {
     {
       id: "ws-004",
       foto: "assets/foto-ws-004.jpg",
+      fotos: ["assets/foto-ws-004-b.jpg", "assets/foto-ws-004-c.jpg"],
       titel: "3-Zimmer-Altbau im Gründerzeitviertel",
       typ: "wohnung",
       angebot: "miete",
@@ -89,6 +93,7 @@ window.WS_DATA = {
     {
       id: "ws-005",
       foto: "assets/foto-ws-005.jpg",
+      fotos: ["assets/foto-ws-005-b.jpg", "assets/foto-ws-005-c.jpg"],
       titel: "4-Zimmer-Wohnung mit Gartenanteil",
       typ: "wohnung",
       angebot: "miete",
@@ -109,6 +114,7 @@ window.WS_DATA = {
     {
       id: "ws-006",
       foto: "assets/foto-ws-006.jpg",
+      fotos: ["assets/foto-ws-006-b.jpg", "assets/foto-ws-006-c.jpg"],
       titel: "Altbauwohnung mit hohen Räumen",
       typ: "wohnung",
       angebot: "miete",
@@ -129,6 +135,7 @@ window.WS_DATA = {
     {
       id: "ws-007",
       foto: "assets/foto-ws-007.jpg",
+      fotos: ["assets/foto-ws-007-b.jpg", "assets/foto-ws-007-c.jpg"],
       titel: "Moderne 4-Zimmer-Eigentumswohnung",
       typ: "wohnung",
       angebot: "kauf",
@@ -149,6 +156,7 @@ window.WS_DATA = {
     {
       id: "ws-008",
       foto: "assets/foto-ws-008.jpg",
+      fotos: ["assets/foto-ws-008-b.jpg", "assets/foto-ws-008-c.jpg"],
       titel: "2-Zimmer-Wohnung im Hochparterre",
       typ: "wohnung",
       angebot: "miete",
@@ -169,6 +177,7 @@ window.WS_DATA = {
     {
       id: "ws-009",
       foto: "assets/foto-ws-009.jpg",
+      fotos: ["assets/foto-ws-009-b.jpg", "assets/foto-ws-009-c.jpg"],
       titel: "Penthouse mit Dachterrasse über dem Neckartal",
       typ: "penthouse",
       angebot: "miete",
@@ -189,6 +198,7 @@ window.WS_DATA = {
     {
       id: "ws-010",
       foto: "assets/foto-ws-010.jpg",
+      fotos: ["assets/foto-ws-010-b.jpg", "assets/foto-ws-010-c.jpg"],
       titel: "3-Zimmer-Wohnung nahe Neckarufer",
       typ: "wohnung",
       angebot: "miete",
@@ -209,6 +219,7 @@ window.WS_DATA = {
     {
       id: "ws-011",
       foto: "assets/foto-ws-011.jpg",
+      fotos: ["assets/foto-ws-011-b.jpg", "assets/foto-ws-011-c.jpg"],
       titel: "Penthouse mit Weitblick über das Neckartal",
       typ: "penthouse",
       angebot: "kauf",
@@ -229,6 +240,7 @@ window.WS_DATA = {
     {
       id: "ws-012",
       foto: "assets/foto-ws-012.jpg",
+      fotos: ["assets/foto-ws-012-b.jpg", "assets/foto-ws-012-c.jpg"],
       titel: "2,5 Zimmer mit Blick über die Altstadt",
       typ: "wohnung",
       angebot: "miete",
@@ -249,6 +261,7 @@ window.WS_DATA = {
     {
       id: "ws-013",
       foto: "assets/foto-ws-013.jpg",
+      fotos: ["assets/foto-ws-013-b.jpg", "assets/foto-ws-013-c.jpg"],
       titel: "Einfamilienhaus mit Garten und Werkstatt",
       typ: "haus",
       angebot: "kauf",
@@ -269,6 +282,7 @@ window.WS_DATA = {
     {
       id: "ws-014",
       foto: "assets/foto-ws-014.jpg",
+      fotos: ["assets/foto-ws-014-b.jpg", "assets/foto-ws-014-c.jpg"],
       titel: "Familienwohnung mit 4 Zimmern",
       typ: "wohnung",
       angebot: "miete",
@@ -289,6 +303,7 @@ window.WS_DATA = {
     {
       id: "ws-015",
       foto: "assets/foto-ws-015.jpg",
+      fotos: ["assets/foto-ws-015-b.jpg", "assets/foto-ws-015-c.jpg"],
       titel: "Reihenhaus über drei Etagen",
       typ: "haus",
       angebot: "kauf",
@@ -309,6 +324,7 @@ window.WS_DATA = {
     {
       id: "ws-016",
       foto: "assets/foto-ws-016.jpg",
+      fotos: ["assets/foto-ws-016-b.jpg", "assets/foto-ws-016-c.jpg"],
       titel: "3-Zimmer-Eigentumswohnung mit Neckarblick",
       typ: "wohnung",
       angebot: "kauf",
