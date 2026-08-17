@@ -17,7 +17,7 @@ const DIR = dirname(fileURLToPath(import.meta.url));
 const HTML_FILES = ['index.html', 'resultate.html', 'inserat.html', 'inserieren.html', 'merkliste.html',
   'impressum.html', 'datenschutz.html', 'kontakt.html', '404.html', 'mein-bereich.html',
   'ratgeber.html', 'ratgeber-besichtigung.html', 'ratgeber-kaufnebenkosten.html', 'ratgeber-umzug.html',
-  'anmelden.html'];
+  'anmelden.html', 'agb.html'];
 const ALL_FILES = [...HTML_FILES, 'styles.css', 'data.js', 'app.js', 'konfig.js', 'auth.js'];
 
 /* REGELWECHSEL 17.08.2026 (phase 2, marcel-go; doku: GO-LIVE §phase-2-kickoff):
@@ -323,7 +323,7 @@ try {
   for (const f of HTML_FILES) {
     const fb = block(src[f], '<!-- ws:footer -->', '<!-- /ws:footer -->') || '';
     check(`16. footer ohne tote "#"-links: ${f}`, !fb.includes('href="#"'));
-    const fehlend = ['impressum.html', 'datenschutz.html', 'kontakt.html'].filter((z) => !fb.includes(`href="${z}"`));
+    const fehlend = ['impressum.html', 'datenschutz.html', 'agb.html', 'kontakt.html'].filter((z) => !fb.includes(`href="${z}"`));
     check(`16. footer verlinkt rechtsseiten: ${f}`, fehlend.length === 0, fehlend.join(', '));
   }
   check('16. footer nennt TOMORROWWORKS (demo-branding)',
@@ -501,6 +501,17 @@ check('29. app.js: externe fotos ohne webp-ableitung (fotoExtern)',
   src['app.js'].includes('fotoExtern') && src['app.js'].includes('/storage/v1/object/public/inserat-fotos/'));
 check('29. inserat.html: inserenten-fotos ehrlich beschriftet',
   src['inserat.html'].includes('Foto des Inserenten'));
+
+/* --- 30. AGB + datenschutz v2 (P2-5, 17.08.2026) --- */
+check('30. agb.html: kernthemen abgedeckt (konto, inserate, fotos, haftung, moderation)',
+  ['Konto', 'Inserate', 'Fotos', 'Haftung', 'Freigabe'].every((t) => src['agb.html'].includes(t)));
+check('30. agb.html: entwurfs-hinweis (juristische pruefung)', src['agb.html'].includes('juristisch geprüft'));
+check('30. datenschutz.html v2: nennt konto, anfragen, inserate und auftragsverarbeiter',
+  ['Konto und Anmeldung', 'Anfragen zu Inseraten', 'Inserate und Fotos', 'Supabase', 'Resend'].every((t) => src['datenschutz.html'].includes(t)));
+check('30. datenschutz.html v2: alte "keine datenerhebung"-aussage entfernt',
+  !src['datenschutz.html'].includes('Keine Datenerhebung durch uns'));
+check('30. anmelden.html: agb-einwilligung beim login', src['anmelden.html'].includes('href="agb.html"'));
+check('30. inserieren.html: agb-verweis beim einreichen', src['inserieren.html'].includes('agb.html'));
 
 /* --- 15. hero-hintergrundbild auf der startseite --- */
 check('15. index.html: hero-bild-element vorhanden', src['index.html'].includes('class="hero-bild"'));

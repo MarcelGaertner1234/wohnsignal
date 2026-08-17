@@ -334,6 +334,7 @@
         <ul class="footer-liste">
           <li><a href="impressum.html">Impressum</a></li>
           <li><a href="datenschutz.html">Datenschutz</a></li>
+          <li><a href="agb.html">Nutzungsbedingungen</a></li>
           <li><a href="kontakt.html">Kontakt</a></li>
         </ul>
       </div>
@@ -556,7 +557,7 @@
               + ' · Einreichen aktiv — Veröffentlichung erst nach Prüfung';
           }
           if (modusHinweis) {
-            modusHinweis.textContent = '«Vorschau prüfen» bleibt lokal. «Inserat einreichen» speichert deinen Entwurf zur Prüfung — mit dem Einreichen bestätigst du die Richtigkeit deiner Angaben.';
+            modusHinweis.innerHTML = '«Vorschau prüfen» bleibt lokal. «Inserat einreichen» speichert deinen Entwurf zur Prüfung — mit dem Einreichen bestätigst du die Richtigkeit deiner Angaben und akzeptierst die <a href="agb.html">Nutzungsbedingungen</a>.';
           }
           if (einreichenBtn) {
             einreichenBtn.addEventListener('click', function () {
