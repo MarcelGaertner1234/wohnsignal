@@ -169,7 +169,25 @@ create policy "anfragen: admin aendert" on public.anfragen
   for update using (public.ist_admin()) with check (public.ist_admin());
 
 -- ------------------------------------------------------------------
--- 4. nach dem einspielen (manuell im sql-editor):
+-- 4. explizite privilegien — noetig, weil beim projekt-setup
+--    «automatically expose new tables» bewusst deaktiviert ist
+--    (least privilege; harmlos-redundant, falls es doch aktiv ist).
+--    die eigentliche zugriffskontrolle bleibt RLS.
+-- ------------------------------------------------------------------
+grant usage on schema public to anon, authenticated;
+grant execute on function public.ist_admin() to anon, authenticated;
+
+grant select on public.inserate to anon, authenticated;
+grant insert, update, delete on public.inserate to authenticated;
+
+grant select, update on public.profile to authenticated;
+
+-- anfragen: anon/authenticated koennen NICHT einfuegen (nur die edge function
+-- via service_role); admin liest/pflegt ueber authenticated + RLS.
+grant select, update on public.anfragen to authenticated;
+
+-- ------------------------------------------------------------------
+-- 5. nach dem einspielen (manuell im sql-editor):
 --    marcel zum admin machen, SOBALD er sich einmal angemeldet hat:
 --    update public.profile set rolle = 'admin'
 --    where id = (select id from auth.users where email = 'kontakt@wohnsignal.de');

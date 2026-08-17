@@ -18,8 +18,13 @@ Diese Dateien sind Infrastruktur-Code — **Keys und Secrets gehören NIE in die
 ## Einmaliges Setup (Marcel, ~15 Minuten)
 
 1. **Supabase-Projekt anlegen:** [supabase.com/dashboard](https://supabase.com/dashboard) →
-   New Project → Name `wohnsignal`, Region **EU (Frankfurt)**, starkes DB-Passwort
-   (im Passwortmanager ablegen; wird im Alltag nicht gebraucht).
+   ⚠️ **zuerst eine FREE-Organisation erstellen** (Link «Create a free organization» im
+   New-Project-Formular) — in einer Pro-Org kostet das Projekt $10/Monat! Dann:
+   New Project in der Free-Org → Name `wohnsignal`, GitHub-Feld leer, Region **EU
+   (Frankfurt)**, Passwort generieren (Passwortmanager; wird im Alltag nicht gebraucht),
+   Security: Data API **an**, «Automatically expose new tables» **aus**,
+   «Enable automatic RLS» **an**. Additional costs muss **$0** zeigen.
+   Hinweis: Free-Projekte pausieren nach ~1 Woche Inaktivität (per Klick weckbar).
 2. **Schema einspielen:** Dashboard → SQL Editor → Inhalt von `schema.sql` einfügen → Run.
 3. **Auth konfigurieren:** Authentication → Sign In / Up → nur **Email** aktivieren,
    Passwort-Login AUS, Magic Link AN. Unter URL Configuration die Site-URL
