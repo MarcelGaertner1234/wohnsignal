@@ -333,6 +333,22 @@ try {
     src['impressum.html'].includes('[INHABER') || !src['impressum.html'].includes('web.de'));
 }
 
+/* --- 17. og-/social-meta + icons (paket 3, 17.08.2026) --- */
+{
+  const BASE = 'https://marcelgaertner1234.github.io/wohnsignal/';
+  for (const f of HTML_FILES) {
+    check(`17. ${f}: og:title vorhanden`, /property="og:title"/.test(src[f]));
+    check(`17. ${f}: og:image absolut auf assets/og-image.jpg`,
+      src[f].includes(`content="${BASE}assets/og-image.jpg"`));
+    check(`17. ${f}: og:url zeigt auf die eigene seite`, src[f].includes(`content="${BASE}${f}"`));
+    check(`17. ${f}: twitter:card + meta-description`,
+      /name="twitter:card"/.test(src[f]) && /name="description"/.test(src[f]));
+    check(`17. ${f}: png-favicon verlinkt`, src[f].includes('assets/favicon.png'));
+  }
+  check('17. assets/og-image.jpg vorhanden (1200x630)', existsSync(join(DIR, 'assets/og-image.jpg')));
+  check('17. assets/favicon.png vorhanden', existsSync(join(DIR, 'assets/favicon.png')));
+}
+
 /* --- 15. hero-hintergrundbild auf der startseite --- */
 check('15. index.html: hero-bild-element vorhanden', src['index.html'].includes('class="hero-bild"'));
 check('15. styles.css: hero-bild referenziert assets/hero-zuhause.jpg',
