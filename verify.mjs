@@ -349,6 +349,16 @@ try {
   check('17. assets/favicon.png vorhanden', existsSync(join(DIR, 'assets/favicon.png')));
 }
 
+/* --- 19. filter-ausbau + vergleichsansicht (paket B, 17.08.2026) --- */
+check('19. resultate.html: flaeche-filter vorhanden', src['resultate.html'].includes('id="f-flaeche"'));
+check('19. resultate.html: merkmal-chips vorhanden (5)',
+  (src['resultate.html'].match(/data-merkmal="/g) || []).length >= 5);
+check('19. resultate.html: MERKMAL_FILTER-synonyme definiert', src['resultate.html'].includes('MERKMAL_FILTER'));
+check('19. merkliste.html: vergleichs-toggle vorhanden', src['merkliste.html'].includes('id="vergleich-btn"'));
+check('19. merkliste.html: vergleichstabelle wird gebaut', src['merkliste.html'].includes('vergleich-tabelle'));
+check('19. merkliste.html: tabelle scrollt im eigenen container (overflow-x)',
+  src['merkliste.html'].includes('overflow-x: auto'));
+
 /* --- 15. hero-hintergrundbild auf der startseite --- */
 check('15. index.html: hero-bild-element vorhanden', src['index.html'].includes('class="hero-bild"'));
 check('15. styles.css: hero-bild referenziert assets/hero-zuhause.webp',

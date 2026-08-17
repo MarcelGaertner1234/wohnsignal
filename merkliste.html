@@ -66,6 +66,21 @@
       .leer-icon svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1; }
       .leer-aktionen { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1.8rem; }
       #leer { padding: 1.5rem 0 1rem; }
+      /* vergleichsansicht: breite tabelle scrollt im eigenen container */
+      .vergleich-scroll { overflow-x: auto; margin-bottom: 2rem; }
+      .vergleich-scroll[hidden] { display: none; }
+      .karten-grid[hidden] { display: none; }
+      .vergleich-tabelle { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 0.85rem; }
+      .vergleich-tabelle th, .vergleich-tabelle td {
+        text-align: left;
+        vertical-align: top;
+        padding: 0.7rem 1.2rem 0.7rem 0;
+        border-bottom: 1px solid var(--linie);
+      }
+      .vergleich-tabelle thead th { font-size: 0.95rem; }
+      .vergleich-tabelle thead a { color: inherit; }
+      .vergleich-tabelle tbody th { color: var(--metall); font-weight: 500; white-space: nowrap; padding-right: 1.6rem; }
+      .vergleich-tabelle .vergleich-preis td { font-weight: 700; }
     </style>
 
     <section class="dunkel sektion">
@@ -88,6 +103,7 @@
             <h2 id="merk-titel" aria-live="polite">Merkliste wird geladen</h2>
           </div>
           <div>
+            <button type="button" class="btn btn--sekundaer" id="vergleich-btn" aria-pressed="false" hidden>Vergleichen</button>
             <button type="button" class="btn btn--sekundaer" id="leeren-btn">Merkliste leeren</button>
             <div class="leeren-confirm" id="leeren-confirm" hidden>
               <span id="leeren-frage">Wirklich alle Inserate aus der Merkliste entfernen?</span>
@@ -96,6 +112,8 @@
             </div>
           </div>
         </div>
+
+        <div class="vergleich-scroll" id="vergleich-box" hidden></div>
 
         <div class="karten-grid" id="merk-grid"></div>
 
@@ -167,6 +185,9 @@
       var confirmBox = document.getElementById('leeren-confirm');
       var leerenJa = document.getElementById('leeren-ja');
       var leerenNein = document.getElementById('leeren-nein');
+      var vergleichBtn = document.getElementById('vergleich-btn');
+      var vergleichBox = document.getElementById('vergleich-box');
+      var vergleichAn = false;
 
       /* gemerkte ids -> vorhandene listings (unbekannte ids still ueberspringen) */
       function eintraege() {
@@ -177,6 +198,41 @@
           if (l) { out.push(l); }
         }
         return out;
+      }
+
+      /* vergleichstabelle: zeilen fix definiert, spalten = gemerkte inserate */
+      function renderVergleich(liste) {
+        var esc = window.WS.escapeHtml;
+        var ZEILEN = [
+          ['Ort', function (l) { return l.plz + ' ' + l.ort; }],
+          ['Angebot', function (l) { return l.angebot; }],
+          ['Preis', function (l) { return window.WS.formatPreis(l); }, 'vergleich-preis'],
+          ['Preis pro m²', function (l) {
+            var pm2 = window.WS.formatEur(Math.round(l.preisEur / l.flaecheM2));
+            return l.angebot === 'miete' ? pm2 + ' / m² / Monat' : pm2 + ' / m²';
+          }],
+          ['Zimmer', function (l) { return window.WS.formatZimmer(l); }],
+          ['Fläche', function (l) { return l.flaecheM2 + ' m²'; }],
+          ['Etage', function (l) { return l.etage; }],
+          ['Verfügbar ab', function (l) { return l.verfuegbarAb; }],
+          ['Landkreis', function (l) { return l.kreis; }],
+          ['Merkmale', function (l) { return (l.merkmale || []).join(', '); }]
+        ];
+        var html = '<table class="vergleich-tabelle"><thead><tr><td></td>';
+        for (var s = 0; s < liste.length; s++) {
+          html += '<th scope="col"><a href="inserat.html?id=' + encodeURIComponent(liste[s].id) + '">'
+            + esc(liste[s].titel) + '</a></th>';
+        }
+        html += '</tr></thead><tbody>';
+        for (var z = 0; z < ZEILEN.length; z++) {
+          html += '<tr' + (ZEILEN[z][2] ? ' class="' + ZEILEN[z][2] + '"' : '') + '><th scope="row">' + esc(ZEILEN[z][0]) + '</th>';
+          for (var c = 0; c < liste.length; c++) {
+            html += '<td>' + esc(ZEILEN[z][1](liste[c])) + '</td>';
+          }
+          html += '</tr>';
+        }
+        html += '</tbody></table>';
+        vergleichBox.innerHTML = html;
       }
 
       function renderListe() {
@@ -192,6 +248,8 @@
           kopfzeile.hidden = true;
           grid.innerHTML = '';
           leer.hidden = false;
+          vergleichAn = false;
+          vergleichBox.hidden = true;
           sektion.classList.remove('hell--orthogonal'); /* erzaehl-flaeche: diagonal */
           return;
         }
@@ -203,11 +261,33 @@
         kopfzeile.hidden = false;
         leer.hidden = true;
 
+        /* vergleich braucht mindestens zwei inserate */
+        if (n < 2) { vergleichAn = false; }
+        vergleichBtn.hidden = n < 2;
+        vergleichBtn.setAttribute('aria-pressed', String(vergleichAn));
+        vergleichBtn.textContent = vergleichAn ? 'Karten anzeigen' : 'Vergleichen';
+
+        if (vergleichAn) {
+          renderVergleich(liste);
+          vergleichBox.hidden = false;
+          grid.hidden = true;
+          grid.innerHTML = '';
+          return;
+        }
+        vergleichBox.hidden = true;
+        grid.hidden = false;
+
         var html = '';
         for (var i = 0; i < liste.length; i++) { html += window.WS.renderCard(liste[i]); }
         grid.innerHTML = html;
         window.WS.syncFavButtons(grid);
       }
+
+      /* vergleich <-> karten umschalten */
+      vergleichBtn.addEventListener('click', function () {
+        vergleichAn = !vergleichAn;
+        renderListe();
+      });
 
       /* inline-bestaetigung statt window.confirm */
       leerenBtn.addEventListener('click', function () {
