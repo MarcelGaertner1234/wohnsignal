@@ -359,6 +359,14 @@ check('19. merkliste.html: vergleichstabelle wird gebaut', src['merkliste.html']
 check('19. merkliste.html: tabelle scrollt im eigenen container (overflow-x)',
   src['merkliste.html'].includes('overflow-x: auto'));
 
+/* --- 20. expose-druckansicht (paket C, 17.08.2026) --- */
+check('20. inserat.html: print-stylesheet vorhanden', src['inserat.html'].includes('@media print'));
+check('20. inserat.html: expose-drucken-button vorhanden', src['inserat.html'].includes('id="expose-drucken"'));
+check('20. inserat.html: druck-fusszeile mit demo-kennzeichnung',
+  src['inserat.html'].includes('Demo-Exposé mit fiktiven Beispieldaten'));
+check('20. inserat.html: interaktives im druck ausgeblendet',
+  /@media print[\s\S]*#anfrage[\s\S]*display:\s*none/.test(src['inserat.html']));
+
 /* --- 15. hero-hintergrundbild auf der startseite --- */
 check('15. index.html: hero-bild-element vorhanden', src['index.html'].includes('class="hero-bild"'));
 check('15. styles.css: hero-bild referenziert assets/hero-zuhause.webp',

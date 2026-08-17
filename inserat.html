@@ -39,6 +39,30 @@
   <!-- /ws:header -->
 
   <main id="main">
+    <style>
+      /* expose-druckansicht — nur inserat.html. bildschirm bleibt unangetastet. */
+      .print-fuss { display: none; }
+      @media print {
+        .site-header, .site-footer, .ticker, .skip-link, .aktion-bar,
+        #anfrage, #aehnliche-sektion, #galerie-sektion,
+        .hero-aktionen, .hero-status, #breadcrumb { display: none !important; }
+        body { background: #fff; color: #000; }
+        .hero, .hell, .sektion, .dunkel { background: #fff; padding: 0.4cm 0; }
+        .hell--orthogonal { clip-path: none; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8cm; }
+        .bild-frame img { max-height: 9cm; width: auto; }
+        .reveal { opacity: 1 !important; transform: none !important; }
+        .zettel-block { break-inside: avoid; margin-bottom: 0.5cm; }
+        .print-fuss {
+          display: block;
+          margin-top: 0.6cm;
+          padding-top: 0.3cm;
+          border-top: 1px solid #999;
+          font-size: 9pt;
+          color: #444;
+        }
+      }
+    </style>
 
     <noscript>
       <div class="container sektion">
@@ -90,6 +114,7 @@
             </div>
           </div>
         </div>
+        <p class="print-fuss">wohnsignal · Demo-Exposé mit fiktiven Beispieldaten · Das Foto ist ein Symbolbild und zeigt nicht das Objekt · Ein Demo-Projekt von TOMORROWWORKS</p>
       </div>
     </section>
 
@@ -267,8 +292,15 @@
       + '<a class="btn btn--primaer" href="#anfrage">Anfrage senden</a>'
       + '<button type="button" class="btn btn--invers" data-fav-id="' + esc(inserat.id) + '"'
       + ' aria-pressed="' + gemerkt + '">' + HERZ + '<span data-merken-text>Merken</span></button>'
+      + '<button type="button" class="btn btn--invers" id="expose-drucken">Exposé drucken</button>'
       + '</div>'
       + '<p class="hero-status"><span class="status-dot" aria-hidden="true"></span>Signal aktiv · Beispieldaten</p>';
+
+    /* expose = browser-druckdialog; das print-stylesheet formt die seite */
+    var druckenBtn = el('expose-drucken');
+    if (druckenBtn) {
+      druckenBtn.addEventListener('click', function () { window.print(); });
+    }
 
     /* ---------- fakten: EIN werkstattzettel "01 / eckdaten" als zeilen-liste ---------- */
     var fakten = [
