@@ -229,7 +229,7 @@
 
   <script src="konfig.js?v=2" defer></script>
   <script src="data.js?v=5" defer></script>
-  <script src="app.js?v=6" defer></script>
+  <script src="app.js?v=7" defer></script>
 <script>
 /* inserat.html — seitenlogik. laeuft nach data.js + app.js (beide defer),
    deshalb alles im DOMContentLoaded-handler. */
@@ -290,8 +290,12 @@
       + ' / <span>' + esc(inserat.ort) + '</span>'
       + ' / <span aria-current="page">' + esc(inserat.titel) + '</span>';
 
-    /* ---------- kopf: beispielfoto (fallback: svg-szene) + titelzeile + preis + aktionen ---------- */
-    if (inserat.foto) {
+    /* ---------- kopf: foto (fallback: svg-szene) + titelzeile + preis + aktionen ---------- */
+    if (inserat.foto && inserat.fotoExtern) {
+      /* echtes inserenten-foto aus dem storage */
+      el('kopf-szene').innerHTML = '<img src="' + esc(inserat.foto) + '" alt="Foto des Inserenten">';
+      el('kopf-caption').textContent = 'Foto des Inserenten';
+    } else if (inserat.foto) {
       var fotoBasis = esc(inserat.foto.replace(/\.jpg$/, ''));
       el('kopf-szene').innerHTML = '<picture>'
         + '<source type="image/webp" srcset="' + fotoBasis + '.webp">'
@@ -320,7 +324,11 @@
       var kostenCaption = document.querySelector('#daten .bildunterschrift');
       if (kostenCaption) { kostenCaption.textContent = 'Angaben des Inserenten — keine Offerte.'; }
       var galerieNote = document.querySelector('#galerie-sektion .section-note');
-      if (galerieNote) { galerieNote.textContent = 'Grundriss-Schema und Lageplan als Visualisierung — Fotos folgen, sobald der Bild-Upload freigeschaltet ist.'; }
+      if (galerieNote) {
+        galerieNote.textContent = inserat.fotoExtern
+          ? 'Fotos vom Inserenten sowie Grundriss-Schema und Lageplan als Visualisierung.'
+          : 'Grundriss-Schema und Lageplan als Visualisierung — für dieses Inserat wurden keine Fotos hochgeladen.';
+      }
     }
 
     var adresse = inserat.strasse + ' · ' + inserat.plz + ' ' + inserat.ort;
@@ -402,14 +410,21 @@
     var galerieHtml = '';
     var zusatz = inserat.fotos || [];
     for (var zf = 0; zf < zusatz.length; zf++) {
-      var zBasis = esc(zusatz[zf].replace(/\.jpg$/, ''));
-      galerieHtml += '<figure class="reveal">'
-        + '<div class="galerie-thumb"><picture>'
-        + '<source type="image/webp" srcset="' + zBasis + '-640.webp">'
-        + '<img src="' + esc(zusatz[zf]) + '" alt="Beispielfoto (Symbolbild) — zeigt nicht das inserierte Objekt" loading="lazy">'
-        + '</picture></div>'
-        + '<figcaption class="bildunterschrift">Beispielfoto 0' + (zf + 1) + ' · Symbolbild</figcaption>'
-        + '</figure>';
+      if (inserat.fotoExtern) {
+        galerieHtml += '<figure class="reveal">'
+          + '<div class="galerie-thumb"><img src="' + esc(zusatz[zf]) + '" alt="Foto des Inserenten" loading="lazy"></div>'
+          + '<figcaption class="bildunterschrift">Foto 0' + (zf + 1) + ' · vom Inserenten</figcaption>'
+          + '</figure>';
+      } else {
+        var zBasis = esc(zusatz[zf].replace(/\.jpg$/, ''));
+        galerieHtml += '<figure class="reveal">'
+          + '<div class="galerie-thumb"><picture>'
+          + '<source type="image/webp" srcset="' + zBasis + '-640.webp">'
+          + '<img src="' + esc(zusatz[zf]) + '" alt="Beispielfoto (Symbolbild) — zeigt nicht das inserierte Objekt" loading="lazy">'
+          + '</picture></div>'
+          + '<figcaption class="bildunterschrift">Beispielfoto 0' + (zf + 1) + ' · Symbolbild</figcaption>'
+          + '</figure>';
+      }
     }
     var ansichten = [
       ['grundriss', 'Grundriss-Schema'],

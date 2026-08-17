@@ -476,10 +476,15 @@
   function dbZuListing(r) {
     var vierzehnTage = 14 * 24 * 60 * 60 * 1000;
     var alter = Date.now() - new Date(r.created_at).getTime();
+    var basisUrl = ((window.WS_KONFIG || {}).supabaseUrl || '').replace(/\/$/, '');
+    var fotoUrls = (r.fotos || []).map(function (pfad) {
+      return basisUrl + '/storage/v1/object/public/inserat-fotos/' + pfad;
+    });
     return {
       id: r.id,
-      foto: null,
-      fotos: [],
+      foto: fotoUrls[0] || null,
+      fotos: fotoUrls.slice(1),
+      fotoExtern: fotoUrls.length > 0,
       titel: r.titel,
       typ: r.typ,
       angebot: r.angebot,
@@ -505,7 +510,7 @@
     if (!konf.supabaseUrl || !konf.supabaseAnonKey) { return Promise.resolve([]); }
     return fetch(konf.supabaseUrl + '/rest/v1/inserate'
       + '?status=eq.aktiv&order=created_at.desc'
-      + '&select=id,titel,typ,angebot,ort,kreis,plz,strasse,preis_eur,zimmer,flaeche_m2,etage,verfuegbar_ab,merkmale,beschreibung,created_at', {
+      + '&select=id,titel,typ,angebot,ort,kreis,plz,strasse,preis_eur,zimmer,flaeche_m2,etage,verfuegbar_ab,merkmale,beschreibung,fotos,created_at', {
       headers: { apikey: konf.supabaseAnonKey, Authorization: 'Bearer ' + konf.supabaseAnonKey }
     }).then(function (res) { return res.ok ? res.json() : []; })
       .then(function (liste) { return liste.map(dbZuListing); })
@@ -529,8 +534,11 @@
       tags += '<li class="tag tag--mehr">+' + (merkmale.length - 3) + '</li>';
     }
     var media;
-    if (listing.foto) {
-      /* webp-varianten (640 fuer karten, 1200 als reserve) mit jpg-fallback */
+    if (listing.foto && listing.fotoExtern) {
+      /* hochgeladenes inserenten-foto (storage) — bereits client-seitig verkleinert */
+      media = '<img src="' + escapeHtml(listing.foto) + '" alt="" loading="lazy">';
+    } else if (listing.foto) {
+      /* beispiel-asset: webp-varianten (640 fuer karten, 1200 als reserve) mit jpg-fallback */
       var fotoBasis = escapeHtml(listing.foto.replace(/\.jpg$/, ''));
       media = '<picture>'
         + '<source type="image/webp" srcset="' + fotoBasis + '-640.webp 640w, ' + fotoBasis + '.webp 1200w"'

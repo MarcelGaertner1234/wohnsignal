@@ -144,6 +144,23 @@
     });
   }
 
+  /* datei in einen storage-bucket laden (nur mit sitzung; RLS prueft den ordner) */
+  function storageUpload(bucket, pfad, blob) {
+    return sitzung().then(function (s) {
+      if (!s) { return Promise.reject(new Error('keine sitzung')); }
+      return fetch(basis + '/storage/v1/object/' + bucket + '/' + pfad, {
+        method: 'POST',
+        headers: {
+          apikey: anon,
+          Authorization: 'Bearer ' + s.access_token,
+          'Content-Type': blob.type || 'application/octet-stream',
+          'x-upsert': 'true'
+        },
+        body: blob
+      });
+    });
+  }
+
   window.WS_AUTH = {
     aktiv: aktiv,
     login: login,
@@ -151,6 +168,7 @@
     abmelden: abmelden,
     verarbeiteCallback: verarbeiteCallback,
     tokenDaten: tokenDaten,
-    rest: rest
+    rest: rest,
+    storageUpload: storageUpload
   };
 })();

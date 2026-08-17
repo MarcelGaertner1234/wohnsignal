@@ -234,6 +234,16 @@
                 </div>
               </section>
 
+              <section class="zettel-block" aria-labelledby="zt-fotos" id="foto-block" hidden>
+                <h2 class="zettel-titel" id="zt-fotos">Fotos</h2>
+                <div>
+                  <label for="fotos">Bis zu 4 Fotos (JPG/PNG — werden vor dem Hochladen automatisch verkleinert)</label>
+                  <input id="fotos" name="fotos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+                </div>
+                <div id="foto-vorschau" class="merkmale-gruppe" aria-live="polite" style="margin-top:0.6rem"></div>
+                <label class="merkmal" style="margin-top:0.4rem"><input type="checkbox" id="foto-rechte" name="foto-rechte"><span>Ich besitze die Rechte an diesen Fotos und stimme der Veröffentlichung zu</span></label>
+              </section>
+
               <section class="zettel-block" aria-labelledby="zt-kontakt">
                 <h2 class="zettel-titel" id="zt-kontakt">Kontakt</h2>
                 <div class="feld-reihe">
@@ -332,9 +342,9 @@
   <!-- /ws:footer -->
 
   <script src="konfig.js?v=2" defer></script>
-  <script src="auth.js?v=1" defer></script>
+  <script src="auth.js?v=2" defer></script>
   <script src="data.js?v=5" defer></script>
-  <script src="app.js?v=6" defer></script>
+  <script src="app.js?v=7" defer></script>
   <script>
     /* seiten-logik inserieren — laeuft nach data.js/app.js (defer), daher in DOMContentLoaded */
     document.addEventListener('DOMContentLoaded', function () {
@@ -448,6 +458,55 @@
       var loginHinweis = document.getElementById('einreichen-login-hinweis');
       var kopfStatus = document.getElementById('inserieren-status');
       var modusHinweis = document.getElementById('modus-hinweis');
+      var fotoBlock = document.getElementById('foto-block');
+      var fotoInput = document.getElementById('fotos');
+      var fotoVorschau = document.getElementById('foto-vorschau');
+      var fotoDateien = []; /* verkleinerte blobs, bereit zum hochladen */
+
+      /* client-seitiges verkleinern: max 1600px breite, jpeg q0.82 */
+      function verkleinereFoto(datei) {
+        return new Promise(function (fertig, kaputt) {
+          var url = URL.createObjectURL(datei);
+          var bild = new Image();
+          bild.onload = function () {
+            var faktor = Math.min(1, 1600 / bild.width);
+            var canvas = document.createElement('canvas');
+            canvas.width = Math.round(bild.width * faktor);
+            canvas.height = Math.round(bild.height * faktor);
+            canvas.getContext('2d').drawImage(bild, 0, 0, canvas.width, canvas.height);
+            URL.revokeObjectURL(url);
+            canvas.toBlob(function (blob) {
+              if (blob) { fertig(blob); } else { kaputt(new Error('verkleinern fehlgeschlagen')); }
+            }, 'image/jpeg', 0.82);
+          };
+          bild.onerror = function () { URL.revokeObjectURL(url); kaputt(new Error('bild nicht lesbar')); };
+          bild.src = url;
+        });
+      }
+
+      if (fotoInput) {
+        fotoInput.addEventListener('change', function () {
+          var dateien = Array.prototype.slice.call(fotoInput.files || []).slice(0, 4);
+          fotoDateien = [];
+          fotoVorschau.innerHTML = dateien.length ? '<span class="filterbar-label">Fotos werden vorbereitet …</span>' : '';
+          var arbeiten = dateien.map(function (d) { return verkleinereFoto(d); });
+          Promise.all(arbeiten.map(function (p) { return p.catch(function () { return null; }); }))
+            .then(function (blobs) {
+              fotoDateien = blobs.filter(Boolean);
+              fotoVorschau.innerHTML = '';
+              for (var fb = 0; fb < fotoDateien.length; fb++) {
+                var img = document.createElement('img');
+                img.src = URL.createObjectURL(fotoDateien[fb]);
+                img.alt = 'Foto-Vorschau ' + (fb + 1);
+                img.style.cssText = 'width:96px;height:72px;object-fit:cover;border:1px solid var(--linie);';
+                fotoVorschau.appendChild(img);
+              }
+              if (dateien.length && !fotoDateien.length) {
+                fotoVorschau.innerHTML = '<span class="filterbar-label">Fotos konnten nicht gelesen werden.</span>';
+              }
+            });
+        });
+      }
 
       function sammleEinreichung(uid) {
         var fehlt = [];
@@ -491,6 +550,7 @@
           }
           var nutzer = AUTH.tokenDaten(s.access_token);
           if (einreichenBtn) { einreichenBtn.hidden = false; }
+          if (fotoBlock) { fotoBlock.hidden = false; }
           if (kopfStatus) {
             kopfStatus.textContent = 'Angemeldet als ' + (nutzer.email || 'unbekannt')
               + ' · Einreichen aktiv — Veröffentlichung erst nach Prüfung';
@@ -501,6 +561,10 @@
           if (einreichenBtn) {
             einreichenBtn.addEventListener('click', function () {
               var e = sammleEinreichung(nutzer.sub);
+              var rechteBox = document.getElementById('foto-rechte');
+              if (!e.fehlt && fotoDateien.length && (!rechteBox || !rechteBox.checked)) {
+                e = { fehlt: ['Rechte-Bestätigung für die Fotos'] };
+              }
               if (e.fehlt) {
                 status.textContent = 'Bitte ergänzen: ' + e.fehlt.join(', ') + '.';
                 status.hidden = false;
@@ -515,12 +579,41 @@
                 headers: { Prefer: 'return=representation' },
                 body: JSON.stringify(e.daten)
               }).then(function (res) {
-                if (res.ok) {
-                  status.textContent = 'Eingereicht! Dein Inserat wartet jetzt auf die Freigabe der Redaktion — den Status siehst du in deinem Bereich.';
-                  return null;
+                if (!res.ok) {
+                  return res.json().catch(function () { return {}; }).then(function (d) {
+                    status.textContent = 'Einreichen fehlgeschlagen (' + (d.message || 'HTTP ' + res.status) + ') — bitte Angaben prüfen.';
+                  });
                 }
-                return res.json().catch(function () { return {}; }).then(function (d) {
-                  status.textContent = 'Einreichen fehlgeschlagen (' + (d.message || 'HTTP ' + res.status) + ') — bitte Angaben prüfen.';
+                return res.json().then(function (zeilen) {
+                  var inseratId = zeilen[0] && zeilen[0].id;
+                  if (!fotoDateien.length || !inseratId) {
+                    status.textContent = 'Eingereicht! Dein Inserat wartet jetzt auf die Freigabe der Redaktion — den Status siehst du in deinem Bereich.';
+                    return null;
+                  }
+                  status.textContent = 'Eingereicht — Fotos werden hochgeladen …';
+                  var pfade = [];
+                  var kette = Promise.resolve();
+                  fotoDateien.forEach(function (blob, idx) {
+                    var pfad = nutzer.sub + '/' + inseratId + '/foto-' + (idx + 1) + '.jpg';
+                    kette = kette.then(function () {
+                      return AUTH.storageUpload('inserat-fotos', pfad, blob).then(function (up) {
+                        if (up.ok) { pfade.push(pfad); }
+                      });
+                    });
+                  });
+                  return kette.then(function () {
+                    if (!pfade.length) {
+                      status.textContent = 'Eingereicht — die Fotos konnten allerdings nicht hochgeladen werden. Du kannst sie später ergänzen.';
+                      return null;
+                    }
+                    return AUTH.rest('/inserate?id=eq.' + encodeURIComponent(inseratId), {
+                      method: 'PATCH',
+                      headers: { Prefer: 'return=minimal' },
+                      body: JSON.stringify({ fotos: pfade })
+                    }).then(function () {
+                      status.textContent = 'Eingereicht mit ' + pfade.length + ' Foto' + (pfade.length > 1 ? 's' : '') + '! Dein Inserat wartet jetzt auf die Freigabe der Redaktion.';
+                    });
+                  });
                 });
               }).catch(function () {
                 status.textContent = 'Einreichen fehlgeschlagen — bitte Verbindung prüfen und erneut versuchen.';

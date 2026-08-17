@@ -489,6 +489,19 @@ check('28. index.html: nachlade-pass mit ehrlichem beispieldaten-anteil',
 check('28. inserat.html: portal-inserate per id ladbar (istEcht-pfad)',
   src['inserat.html'].includes('istEcht') && src['inserat.html'].includes('ladePortalInserate'));
 
+/* --- 29. bild-upload (P2-4, 17.08.2026) --- */
+check('29. backend/storage.sql vorhanden (bucket + owner-RLS)',
+  existsSync(join(DIR, 'backend/storage.sql')));
+check('29. inserieren.html: foto-upload mit rechte-bestaetigung',
+  src['inserieren.html'].includes('id="fotos"') && src['inserieren.html'].includes('foto-rechte'));
+check('29. inserieren.html: fotos werden client-seitig verkleinert',
+  src['inserieren.html'].includes('verkleinereFoto') && src['inserieren.html'].includes('toBlob'));
+check('29. auth.js: storage-upload nur mit sitzung', src['auth.js'].includes('storageUpload'));
+check('29. app.js: externe fotos ohne webp-ableitung (fotoExtern)',
+  src['app.js'].includes('fotoExtern') && src['app.js'].includes('/storage/v1/object/public/inserat-fotos/'));
+check('29. inserat.html: inserenten-fotos ehrlich beschriftet',
+  src['inserat.html'].includes('Foto des Inserenten'));
+
 /* --- 15. hero-hintergrundbild auf der startseite --- */
 check('15. index.html: hero-bild-element vorhanden', src['index.html'].includes('class="hero-bild"'));
 check('15. styles.css: hero-bild referenziert assets/hero-zuhause.webp',
