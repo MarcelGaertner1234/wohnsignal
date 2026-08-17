@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Inserat · wohnsignal</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%2312100e'/%3E%3Ccircle cx='8' cy='8' r='3' fill='%238b3527'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css?v=5">
+</head>
+<body>
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+  <!-- ws:header -->
+  <header class="site-header">
+    <div class="container site-header-innen">
+      <a class="logo" href="index.html">wohnsignal</a>
+      <nav class="hauptnav" aria-label="Hauptnavigation">
+        <a href="resultate.html?angebot=miete">Mieten</a>
+        <a href="resultate.html?angebot=kauf">Kaufen</a>
+        <a href="inserieren.html">Inserieren</a>
+        <a href="merkliste.html">Merkliste</a>
+      </nav>
+    </div>
+  </header>
+  <!-- /ws:header -->
+
+  <main id="main">
+
+    <noscript>
+      <div class="container sektion">
+        <p class="form-hinweis">Dieser Prototyp lädt Inserate per JavaScript. Bitte JavaScript aktivieren, um das Inserat zu sehen.</p>
+      </div>
+    </noscript>
+
+    <!-- kopfbereich: szene + titel + preis -->
+    <section class="hero" id="kopf">
+      <div class="container">
+        <nav class="kicker" aria-label="Pfadnavigation" id="breadcrumb"></nav>
+        <div class="detail-grid">
+          <div class="reveal">
+            <div class="bild-frame" id="kopf-szene"></div>
+            <p class="kicker" id="kopf-caption">Designvisualisierung — keine Fotografie, Beispieldaten</p>
+          </div>
+          <div class="reveal" id="kopf-info"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="ticker" id="ticker-band">
+      <div class="ticker-track">
+        <span>Prototyp · alle Inserate sind Beispieldaten · Formulare senden keine Daten · Beispielfotos zeigen nicht die Objekte ·</span>
+        <span aria-hidden="true">Prototyp · alle Inserate sind Beispieldaten · Formulare senden keine Daten · Beispielfotos zeigen nicht die Objekte ·</span>
+      </div>
+    </div>
+
+    <!-- eckdaten (werkstattzettel) + beschreibung -->
+    <section class="hell hell--orthogonal" id="daten">
+      <div class="container">
+        <div class="detail-grid">
+          <div class="reveal">
+            <div class="zettel" id="fakten-liste"></div>
+          </div>
+          <div class="reveal">
+            <div class="zettel-block">
+              <h2 class="kicker">Beschreibung</h2>
+              <p class="section-note" id="beschreibung-text"></p>
+            </div>
+            <div class="zettel-block">
+              <h2 class="kicker">Merkmale</h2>
+              <ul class="tags" id="merkmale-liste"></ul>
+            </div>
+            <div class="zettel-block">
+              <h2 class="kicker">Kosten</h2>
+              <ul id="kosten-liste"></ul>
+              <p class="bildunterschrift">Richtwerte aus Beispieldaten — keine echte Offerte</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- galerie: erzaehl-sektion, deshalb mit diagonalem schnitt (dna-rhythmus) -->
+    <section class="hell" id="galerie-sektion">
+      <div class="container">
+        <div class="zettel-block">
+          <h2 class="kicker">Galerie</h2>
+          <p class="section-note">Drei Ansichten desselben Objekts — Aussenansicht, Grundriss-Schema und Lageplan als Visualisierung. Das Kopfbild ist ein Beispielfoto und zeigt nicht das inserierte Objekt.</p>
+        </div>
+        <div class="galerie-neben" id="galerie-liste"></div>
+      </div>
+    </section>
+
+    <!-- anfrage (vorschau-modus) -->
+    <section class="hell hell--orthogonal" id="anfrage">
+      <div class="container">
+        <div class="zettel-block">
+          <h2 class="kicker">Anfrage</h2>
+          <p class="section-note">Stelle deine Frage direkt zum Inserat — Name, E-Mail und Nachricht genügen. Im Prototyp wird nichts versendet.</p>
+        </div>
+        <form class="formular reveal" id="anfrage-formular">
+          <p class="form-hinweis">Vorschau-Modus: Dieses Formular sendet keine Daten.</p>
+          <div class="feld-reihe">
+            <div>
+              <label for="anfrage-name">Name</label>
+              <input type="text" id="anfrage-name" name="name" required autocomplete="name">
+            </div>
+            <div>
+              <label for="anfrage-email">E-Mail</label>
+              <input type="email" id="anfrage-email" name="email" required autocomplete="email">
+            </div>
+          </div>
+          <div>
+            <label for="anfrage-nachricht">Nachricht</label>
+            <textarea id="anfrage-nachricht" name="nachricht" required></textarea>
+          </div>
+          <div>
+            <button type="submit" class="btn btn--primaer">Anfrage senden</button>
+          </div>
+          <p class="form-hinweis" id="anfrage-status" role="status" tabindex="-1" hidden>vorschau geprüft — es wurden keine daten versendet.</p>
+        </form>
+      </div>
+    </section>
+
+    <!-- aehnliche inserate -->
+    <section class="dunkel sektion" id="aehnliche-sektion">
+      <div class="container">
+        <div class="zettel-block">
+          <p class="kicker">Weitere Signale</p>
+          <h2>Ähnliche Inserate</h2>
+          <p class="section-note">Gleiche Angebotsart, gleicher Kanton oder ähnliche Zimmerzahl — deterministisch ausgewählt, keine Empfehlung.</p>
+        </div>
+        <div class="karten-grid" id="aehnliche-grid"></div>
+      </div>
+    </section>
+
+    <!-- fehlerzustand: unbekannte id -->
+    <section class="hero" id="fehler" hidden>
+      <div class="container">
+        <p class="kicker">Kein Signal</p>
+        <h1>Inserat nicht gefunden</h1>
+        <p class="hero-sub">Unter dieser Kennung sendet kein Inserat — vielleicht wurde es entfernt, oder der Link ist unvollständig.</p>
+        <div class="hero-aktionen">
+          <a class="btn btn--primaer" href="resultate.html?angebot=miete">Zur Suche</a>
+          <a class="btn btn--invers" href="index.html">Zur Startseite</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ws:footer -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>wohnsignal</h3>
+        <p class="footer-claim">Dein nächstes Zuhause sendet schon.</p>
+        <p class="footer-hinweis">Prototyp · alle Inserate sind beispieldaten</p>
+      </div>
+      <div>
+        <h3>Portal</h3>
+        <ul class="footer-liste">
+          <li><a href="resultate.html?angebot=miete">Wohnung mieten</a></li>
+          <li><a href="resultate.html?angebot=kauf">Wohnung kaufen</a></li>
+          <li><a href="inserieren.html">Inserat aufgeben</a></li>
+          <li><a href="merkliste.html">Merkliste</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Rechtliches</h3>
+        <ul class="footer-liste">
+          <li><a href="#" title="Im Prototyp nicht hinterlegt">Impressum</a></li>
+          <li><a href="#" title="Im Prototyp nicht hinterlegt">Datenschutz</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+  <!-- /ws:footer -->
+
+  <script src="data.js?v=3" defer></script>
+  <script src="app.js?v=3" defer></script>
+<script>
+/* inserat.html — seitenlogik. laeuft nach data.js + app.js (beide defer),
+   deshalb alles im DOMContentLoaded-handler. */
+(function () {
+  'use strict';
+
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!window.WS || !window.WS_DATA || !window.WS_DATA.listings) { return; }
+
+    var esc = window.WS.escapeHtml;
+
+    /* herz-icon: 1px-stroke in currentColor (muster aus app.js) */
+    var HERZ = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"'
+      + ' stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"'
+      + ' focusable="false" data-merken-herz>'
+      + '<path d="M12 20s-7-4.5-9-9c-1.2-2.8.6-6 3.8-6 2 0 3.4 1.2 5.2 3.4C13.8 6.2 15.2 5 17.2 5c3.2 0 5 3.2 3.8 6-2 4.5-9 9-9 9z"/></svg>';
+
+    function el(id) { return document.getElementById(id); }
+
+    var id = window.WS.qs('id');
+    var inserat = id ? window.WS.getListing(id) : null;
+
+    /* ---------- fehlerzustand: fehlende oder unbekannte id ---------- */
+    if (!inserat) {
+      document.title = 'Inserat nicht gefunden · wohnsignal';
+      var verstecken = ['kopf', 'ticker-band', 'daten', 'galerie-sektion', 'anfrage', 'aehnliche-sektion'];
+      for (var v = 0; v < verstecken.length; v++) {
+        var knoten = el(verstecken[v]);
+        if (knoten) { knoten.hidden = true; }
+      }
+      if (el('fehler')) { el('fehler').hidden = false; }
+      return;
+    }
+
+    document.title = inserat.titel + ' — wohnsignal';
+    var istMiete = inserat.angebot === 'miete';
+    var gemerkt = window.WS.isFav(inserat.id);
+
+    /* ---------- breadcrumb ---------- */
+    el('breadcrumb').innerHTML =
+      '<a href="resultate.html?angebot=' + encodeURIComponent(inserat.angebot) + '">Inserate</a>'
+      + ' / <span>' + esc(inserat.ort) + '</span>'
+      + ' / <span aria-current="page">' + esc(inserat.titel) + '</span>';
+
+    /* ---------- kopf: beispielfoto (fallback: svg-szene) + titelzeile + preis + aktionen ---------- */
+    if (inserat.foto) {
+      el('kopf-szene').innerHTML = '<img src="' + esc(inserat.foto)
+        + '" alt="Beispielfoto (Symbolbild) — zeigt nicht das inserierte Objekt">';
+      el('kopf-caption').textContent = 'Beispielfoto (Symbolbild) — zeigt nicht das inserierte Objekt';
+    } else {
+      el('kopf-szene').innerHTML = window.WS.renderScene(inserat, 'hero');
+    }
+
+    var badges = '<span class="badge badge--beispiel">beispielinserat</span>';
+    if (inserat.neu) { badges += ' <span class="badge badge--neu">neu</span>'; }
+
+    var adresse = inserat.strasse + ' · ' + inserat.ort + ' ' + inserat.kanton;
+
+    el('kopf-info').innerHTML =
+      '<div class="detail-kopf">'
+      + badges
+      + '<h1>' + esc(inserat.titel) + '</h1>'
+      + '<p class="detail-preis">' + esc(window.WS.formatPreis(inserat)) + '</p>'
+      + '</div>'
+      + '<p class="hero-sub adresse">' + esc(adresse) + '</p>'
+      + '<div class="hero-aktionen">'
+      + '<a class="btn btn--primaer" href="#anfrage">Anfrage senden</a>'
+      + '<button type="button" class="btn btn--invers" data-fav-id="' + esc(inserat.id) + '"'
+      + ' aria-pressed="' + gemerkt + '">' + HERZ + '<span data-merken-text>Merken</span></button>'
+      + '</div>'
+      + '<p class="hero-status"><span class="status-dot" aria-hidden="true"></span>Signal aktiv · Beispieldaten</p>';
+
+    /* ---------- fakten: EIN werkstattzettel "01 / eckdaten" als zeilen-liste ---------- */
+    var fakten = [
+      ['Zimmer', window.WS.formatZimmer(inserat)],
+      ['Fläche', inserat.flaecheM2 + ' m²'],
+      ['Etage', inserat.etage],
+      ['Verfügbar ab', inserat.verfuegbarAb],
+      ['Typ', inserat.typ],
+      ['Angebot', inserat.angebot]
+    ];
+    var faktenHtml = '<div class="zettel-block">'
+      + '<h2 class="zettel-titel">Eckdaten</h2>'
+      + '<ul class="zeilen-liste">';
+    for (var f = 0; f < fakten.length; f++) {
+      faktenHtml += '<li><span class="label">' + esc(fakten[f][0]) + '</span>'
+        + '<span class="wert">' + esc(fakten[f][1]) + '</span></li>';
+    }
+    faktenHtml += '</ul></div>';
+    el('fakten-liste').innerHTML = faktenHtml;
+
+    /* ---------- beschreibung + merkmale ---------- */
+    el('beschreibung-text').textContent = inserat.beschreibung;
+
+    var merkmale = inserat.merkmale || [];
+    var tagsHtml = '';
+    for (var m = 0; m < merkmale.length; m++) {
+      tagsHtml += '<li class="tag">' + esc(merkmale[m]) + '</li>';
+    }
+    el('merkmale-liste').innerHTML = tagsHtml;
+
+    /* ---------- kosten: dotted-leader-zeilen ---------- */
+    var proM2 = Math.round(inserat.preisChf / inserat.flaecheM2);
+    var kosten = istMiete
+      ? [
+          ['Monatsmiete', window.WS.formatChf(inserat.preisChf) + ' / mt.', true],
+          ['Preis pro m²', window.WS.formatChf(proM2) + ' / m² / mt.', false]
+        ]
+      : [
+          ['Kaufpreis', window.WS.formatChf(inserat.preisChf), true],
+          ['Preis pro m²', window.WS.formatChf(proM2) + ' / m²', false]
+        ];
+    var kostenHtml = '';
+    for (var k = 0; k < kosten.length; k++) {
+      kostenHtml += '<li class="kosten-zeile">'
+        + '<span>' + esc(kosten[k][0]) + '</span><s aria-hidden="true"></s>'
+        + '<span class="kosten-preis' + (kosten[k][2] ? ' kosten-preis--akzent' : '') + '">'
+        + esc(kosten[k][1]) + '</span>'
+        + '</li>';
+    }
+    el('kosten-liste').innerHTML = kostenHtml;
+
+    /* ---------- galerie: drei ECHTE ansichten desselben objekts ----------
+       01 aussenszene (wie im kopf), 02 grundriss-schema, 03 lageplan mit pin */
+    var ansichten = [
+      [null, 'Aussenansicht'],
+      ['grundriss', 'Grundriss-Schema'],
+      ['karte', 'Lageplan']
+    ];
+    var galerieHtml = '';
+    for (var g = 0; g < ansichten.length; g++) {
+      galerieHtml += '<figure class="reveal">'
+        + '<div class="galerie-thumb">' + window.WS.renderScene(inserat, 'thumb', ansichten[g][0]) + '</div>'
+        + '<figcaption class="bildunterschrift">Ansicht 0' + (g + 1) + ' · ' + ansichten[g][1] + '</figcaption>'
+        + '</figure>';
+    }
+    el('galerie-liste').innerHTML = galerieHtml;
+
+    /* ---------- anfrage-formular: vorschau-modus, kein versand ---------- */
+    var formular = el('anfrage-formular');
+    var statusMeldung = el('anfrage-status');
+    var nachrichtFeld = el('anfrage-nachricht');
+    if (nachrichtFeld && !nachrichtFeld.value) {
+      nachrichtFeld.value = 'Guten Tag\n\nIch interessiere mich für das Inserat «'
+        + inserat.titel.toLowerCase() + '» in ' + inserat.ort.toLowerCase()
+        + '. Gerne würde ich eine Besichtigung vereinbaren.';
+    }
+    if (formular) {
+      formular.addEventListener('submit', function (e) {
+        e.preventDefault(); /* niemals senden — vorschau-modus */
+        if (formular.checkValidity && !formular.checkValidity()) {
+          if (formular.reportValidity) { formular.reportValidity(); }
+          return;
+        }
+        if (statusMeldung) {
+          statusMeldung.hidden = false;
+          try { statusMeldung.focus(); } catch (err) { /* egal */ }
+        }
+      });
+    }
+
+    /* ---------- aehnliche inserate: deterministisch, max 3 ----------
+       gleiche angebot-art UND (gleicher kanton ODER zimmerdiff <= 1);
+       sortierung: kanton-treffer zuerst, dann kleinste zimmerdiff, dann id. */
+    var kandidaten = [];
+    var alle = window.WS_DATA.listings;
+    for (var a = 0; a < alle.length; a++) {
+      var x = alle[a];
+      if (x.id === inserat.id || x.angebot !== inserat.angebot) { continue; }
+      var gleicherKanton = x.kanton === inserat.kanton;
+      var zimmerDiff = Math.abs(x.zimmer - inserat.zimmer);
+      if (gleicherKanton || zimmerDiff <= 1) {
+        kandidaten.push({ inserat: x, rang: gleicherKanton ? 0 : 1, zimmerDiff: zimmerDiff });
+      }
+    }
+    kandidaten.sort(function (a2, b2) {
+      if (a2.rang !== b2.rang) { return a2.rang - b2.rang; }
+      if (a2.zimmerDiff !== b2.zimmerDiff) { return a2.zimmerDiff - b2.zimmerDiff; }
+      return a2.inserat.id < b2.inserat.id ? -1 : 1;
+    });
+    kandidaten = kandidaten.slice(0, 3);
+
+    if (kandidaten.length > 0) {
+      var gridHtml = '';
+      for (var c = 0; c < kandidaten.length; c++) {
+        gridHtml += window.WS.renderCard(kandidaten[c].inserat);
+      }
+      var grid = el('aehnliche-grid');
+      grid.innerHTML = gridHtml;
+      var karten = grid.querySelectorAll('.karte');
+      for (var kk = 0; kk < karten.length; kk++) { karten[kk].classList.add('reveal'); }
+    } else {
+      el('aehnliche-sektion').hidden = true;
+    }
+
+    /* ---------- mobile aktion-bar (nur wenn inserat existiert) ---------- */
+    var bar = document.createElement('div');
+    bar.className = 'aktion-bar';
+    bar.setAttribute('role', 'group');
+    bar.setAttribute('aria-label', 'Schnellaktionen');
+    bar.innerHTML =
+      '<button type="button" class="btn btn--invers" data-fav-id="' + esc(inserat.id) + '"'
+      + ' aria-pressed="' + gemerkt + '">' + HERZ + '<span data-merken-text>Merken</span></button>'
+      + '<a class="btn btn--primaer" href="#anfrage">Anfrage senden</a>';
+    document.body.appendChild(bar);
+    document.body.classList.add('hat-aktion-bar');
+
+    /* ---------- merken-zustand (text + herz-fuellung) ---------- */
+    function merkenZustand() {
+      var an = window.WS.isFav(inserat.id);
+      var texte = document.querySelectorAll('[data-merken-text]');
+      for (var t = 0; t < texte.length; t++) { texte[t].textContent = an ? 'Gemerkt' : 'Merken'; }
+      var herzen = document.querySelectorAll('[data-merken-herz]');
+      for (var h = 0; h < herzen.length; h++) { herzen[h].setAttribute('fill', an ? 'currentColor' : 'none'); }
+    }
+    merkenZustand();
+    document.addEventListener('ws:favchange', merkenZustand);
+
+    window.WS.syncFavButtons();
+    window.WS.initReveals();
+  });
+})();
+</script>
+</body>
+</html>

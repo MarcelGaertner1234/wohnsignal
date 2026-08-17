@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>wohnsignal — Wohnen finden</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%2312100e'/%3E%3Ccircle cx='8' cy='8' r='3' fill='%238b3527'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css?v=5">
+</head>
+<body>
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+  <!-- ws:header -->
+  <header class="site-header">
+    <div class="container site-header-innen">
+      <a class="logo" href="index.html">wohnsignal</a>
+      <nav class="hauptnav" aria-label="Hauptnavigation">
+        <a href="resultate.html?angebot=miete">Mieten</a>
+        <a href="resultate.html?angebot=kauf">Kaufen</a>
+        <a href="inserieren.html">Inserieren</a>
+        <a href="merkliste.html">Merkliste</a>
+      </nav>
+    </div>
+  </header>
+  <!-- /ws:header -->
+
+  <main id="main">
+
+    <!-- hero: heller creme-verlauf, rechts ein weich auslaufendes beispielfoto -->
+    <section class="hero" aria-labelledby="hero-titel">
+      <div class="hero-bild" aria-hidden="true"></div>
+      <div class="container">
+        <p class="kicker">Suche</p>
+        <h1 id="hero-titel">
+          <span class="zeile">Dein nächstes Zuhause</span>
+          <span class="zeile">sendet schon.</span>
+        </h1>
+        <p class="hero-sub">Wohnungen und Häuser in der ganzen Schweiz – klar beschrieben, ehrlich ausgezeichnet und ohne Umwege gefunden.</p>
+
+        <form id="suchform" role="search" aria-label="Inseratsuche" action="resultate.html" method="get">
+          <input type="hidden" name="angebot" id="such-angebot" value="miete">
+          <div class="hero-aktionen">
+            <div class="segmente" role="group" aria-label="Mieten oder Kaufen">
+              <button type="button" class="segment" data-angebot="miete" aria-pressed="true">Mieten</button>
+              <button type="button" class="segment" data-angebot="kauf" aria-pressed="false">Kaufen</button>
+            </div>
+          </div>
+          <div class="suchleiste suchleiste--dunkel">
+            <input type="text" name="ort" id="such-ort" placeholder="Ort oder PLZ" aria-label="Ort oder PLZ" autocomplete="off">
+            <select name="zimmer" id="such-zimmer" class="feld" aria-label="Zimmer ab">
+              <option value="">Zimmer ab · beliebig</option>
+              <option value="1.5">Ab 1.5 Zi.</option>
+              <option value="2.5">Ab 2.5 Zi.</option>
+              <option value="3.5">Ab 3.5 Zi.</option>
+              <option value="4.5">Ab 4.5 Zi.</option>
+            </select>
+            <select name="preis" id="such-preis" class="feld" aria-label="Preis bis">
+              <option value="">Preis bis · beliebig</option>
+              <option value="1500">Bis CHF 1'500 / Mt.</option>
+              <option value="2000">Bis CHF 2'000 / Mt.</option>
+              <option value="2500">Bis CHF 2'500 / Mt.</option>
+              <option value="3000">Bis CHF 3'000 / Mt.</option>
+              <option value="4000">Bis CHF 4'000 / Mt.</option>
+            </select>
+            <button type="submit" class="btn btn--primaer">Suchen</button>
+          </div>
+        </form>
+
+        <p class="hero-status"><span class="status-dot" aria-hidden="true"></span>Signal aktiv · alle Inserate sind Beispieldaten</p>
+      </div>
+    </section>
+
+    <!-- ticker-band -->
+    <div class="ticker">
+      <div class="ticker-track">
+        <span>Dein nächstes Zuhause sendet schon · Mieten und Kaufen in der ganzen Schweiz · klar beschrieben · ehrlich ausgezeichnet · Prototyp mit Beispieldaten · </span>
+        <span aria-hidden="true">Dein nächstes Zuhause sendet schon · Mieten und Kaufen in der ganzen Schweiz · klar beschrieben · ehrlich ausgezeichnet · Prototyp mit Beispieldaten · </span>
+      </div>
+    </div>
+
+    <!-- neu im portal: datendicht, deshalb orthogonal ohne schraegschnitt -->
+    <section class="hell hell--orthogonal" aria-labelledby="neu-titel">
+      <div class="container">
+        <p class="kicker">Inserate</p>
+        <h2 id="neu-titel">Neu im Portal</h2>
+        <p class="section-note">Die neuesten Beispielinserate, direkt aus dem Datenbestand geladen — mit Preis, Fläche und Bezugstermin ohne Versteckspiel.</p>
+        <div class="karten-grid" id="neu-grid" style="margin-top:2.2rem"></div>
+        <noscript>
+          <p class="section-note" style="margin-top:1.2rem">Diese Ansicht braucht JavaScript, um die Beispielinserate zu laden.</p>
+        </noscript>
+        <p style="margin-top:2.2rem"><a class="btn btn--sekundaer" href="resultate.html">Alle Inserate ansehen</a></p>
+      </div>
+    </section>
+
+    <!-- so funktioniert wohnsignal: erzaehl-sektion mit diagonalem schnitt -->
+    <section class="hell" aria-labelledby="ablauf-titel">
+      <div class="container">
+        <p class="kicker">Ablauf</p>
+        <h2 id="ablauf-titel">So funktioniert wohnsignal</h2>
+        <ol class="schritte reveal" style="margin-top:1.6rem;max-width:640px">
+          <li class="schritt">
+            <div>
+              <h3>Suchen</h3>
+              <p class="section-note">Wähle Mieten oder Kaufen, setze Ort, Zimmer und Preis. Jedes Resultat nennt Preis, Fläche und Bezugstermin — ohne versteckte Angaben.</p>
+            </div>
+          </li>
+          <li class="schritt">
+            <div>
+              <h3>Merken</h3>
+              <p class="section-note">Das Herz auf jeder Karte legt das Inserat in deine Merkliste. Gespeichert wird nur lokal in deinem Browser — ganz ohne Konto.</p>
+            </div>
+          </li>
+          <li class="schritt">
+            <div>
+              <h3>Anfragen</h3>
+              <p class="section-note">Auf der Detailseite stellst du deine Anfrage direkt. Im Prototyp verlässt dabei keine einzige Angabe deinen Browser — das Formular zeigt nur die Vorschau.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- kennzahlen: zur laufzeit aus den daten gezaehlt -->
+    <section class="sektion dunkel" aria-labelledby="zahlen-titel">
+      <div class="container">
+        <p class="kicker">Bestand</p>
+        <h2 id="zahlen-titel">wohnsignal in Zahlen</h2>
+        <ul id="stat-liste" class="reveal" style="display:flex;flex-wrap:wrap;gap:2rem 4.5rem;margin-top:2.4rem">
+          <li>
+            <p class="detail-preis" id="stat-inserate">–</p>
+            <p class="kicker" style="margin-bottom:0">Inserate</p>
+          </li>
+          <li>
+            <p class="detail-preis" id="stat-orte">–</p>
+            <p class="kicker" style="margin-bottom:0">Orte</p>
+          </li>
+          <li>
+            <p class="detail-preis" id="stat-beispiel">–</p>
+            <p class="kicker" style="margin-bottom:0">Beispieldaten</p>
+          </li>
+        </ul>
+        <p class="section-note" style="margin-top:1.8rem">Inserate und Orte zur Laufzeit gezählt · Beispieldaten per Definition des Prototyps.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ws:footer -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>wohnsignal</h3>
+        <p class="footer-claim">Dein nächstes Zuhause sendet schon.</p>
+        <p class="footer-hinweis">Prototyp · alle Inserate sind beispieldaten</p>
+      </div>
+      <div>
+        <h3>Portal</h3>
+        <ul class="footer-liste">
+          <li><a href="resultate.html?angebot=miete">Wohnung mieten</a></li>
+          <li><a href="resultate.html?angebot=kauf">Wohnung kaufen</a></li>
+          <li><a href="inserieren.html">Inserat aufgeben</a></li>
+          <li><a href="merkliste.html">Merkliste</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Rechtliches</h3>
+        <ul class="footer-liste">
+          <li><a href="#" title="Im Prototyp nicht hinterlegt">Impressum</a></li>
+          <li><a href="#" title="Im Prototyp nicht hinterlegt">Datenschutz</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+  <!-- /ws:footer -->
+
+  <script src="data.js?v=3" defer></script>
+  <script src="app.js?v=3" defer></script>
+  <script>
+  (function () {
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var WS = window.WS;
+      var DATA = window.WS_DATA;
+      if (!WS || !DATA || !DATA.listings) { return; }
+
+      /* ---------- suchbox: toggle miete/kauf + preis-stufen ---------- */
+
+      var PREIS_STUFEN = {
+        miete: [1500, 2000, 2500, 3000, 4000],
+        kauf: [750000, 1000000, 1250000, 1500000]
+      };
+      var angebot = 'miete';
+
+      var form = document.getElementById('suchform');
+      var hidden = document.getElementById('such-angebot');
+      var ortInput = document.getElementById('such-ort');
+      var zimmerSelect = document.getElementById('such-zimmer');
+      var preisSelect = document.getElementById('such-preis');
+      var segmentBtns = form ? form.querySelectorAll('.segment[data-angebot]') : [];
+
+      function fuellePreisSelect() {
+        var stufen = PREIS_STUFEN[angebot];
+        var html = '<option value="">Preis bis · beliebig</option>';
+        for (var i = 0; i < stufen.length; i++) {
+          html += '<option value="' + stufen[i] + '">Bis ' + WS.formatChf(stufen[i]).replace('chf', 'CHF')
+            + (angebot === 'miete' ? ' / Mt.' : '') + '</option>';
+        }
+        preisSelect.innerHTML = html;
+      }
+
+      function setzeAngebot(neu) {
+        if (neu === angebot || !PREIS_STUFEN[neu]) { return; }
+        angebot = neu;
+        hidden.value = neu;
+        for (var i = 0; i < segmentBtns.length; i++) {
+          var an = segmentBtns[i].getAttribute('data-angebot') === neu;
+          segmentBtns[i].setAttribute('aria-pressed', String(an));
+        }
+        fuellePreisSelect();
+      }
+
+      for (var s = 0; s < segmentBtns.length; s++) {
+        segmentBtns[s].addEventListener('click', function () {
+          setzeAngebot(this.getAttribute('data-angebot'));
+        });
+      }
+
+      if (form) {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var params = new URLSearchParams();
+          params.set('angebot', angebot);
+          var ort = ortInput.value.trim();
+          if (ort) { params.set('ort', ort); }
+          if (zimmerSelect.value) { params.set('zimmer', zimmerSelect.value); }
+          if (preisSelect.value) { params.set('preis', preisSelect.value); }
+          window.location.href = 'resultate.html?' + params.toString();
+        });
+      }
+
+      /* ---------- neu im portal: karten der inserate mit neu=true ---------- */
+
+      var grid = document.getElementById('neu-grid');
+      if (grid) {
+        var neue = [];
+        for (var i = 0; i < DATA.listings.length; i++) {
+          if (DATA.listings[i].neu) { neue.push(DATA.listings[i]); }
+        }
+        var html = '';
+        for (var j = 0; j < neue.length; j++) {
+          html += WS.renderCard(neue[j]);
+        }
+        grid.innerHTML = html;
+        var karten = grid.querySelectorAll('.karte');
+        for (var k = 0; k < karten.length; k++) {
+          karten[k].classList.add('reveal');
+        }
+        WS.syncFavButtons(grid);
+        WS.initReveals();
+      }
+
+      /* ---------- kennzahlen: ehrlich aus WS_DATA gezaehlt ---------- */
+
+      var orte = {};
+      for (var o = 0; o < DATA.listings.length; o++) {
+        orte[DATA.listings[o].ort] = true;
+      }
+      var anzahlOrte = 0;
+      for (var key in orte) {
+        if (Object.prototype.hasOwnProperty.call(orte, key)) { anzahlOrte++; }
+      }
+
+      function setText(id, wert) {
+        var el = document.getElementById(id);
+        if (el) { el.textContent = wert; }
+      }
+      setText('stat-inserate', String(DATA.listings.length));
+      setText('stat-orte', String(anzahlOrte));
+      /* per konvention ist jedes inserat dieses prototyps fiktiv */
+      setText('stat-beispiel', '100 %');
+    });
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Merkliste · wohnsignal</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%2312100e'/%3E%3Ccircle cx='8' cy='8' r='3' fill='%238b3527'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css?v=5">
+</head>
+<body>
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+  <!-- ws:header -->
+  <header class="site-header">
+    <div class="container site-header-innen">
+      <a class="logo" href="index.html">wohnsignal</a>
+      <nav class="hauptnav" aria-label="Hauptnavigation">
+        <a href="resultate.html?angebot=miete">Mieten</a>
+        <a href="resultate.html?angebot=kauf">Kaufen</a>
+        <a href="inserieren.html">Inserieren</a>
+        <a href="merkliste.html" aria-current="page">Merkliste</a>
+      </nav>
+    </div>
+  </header>
+  <!-- /ws:header -->
+
+  <main id="main">
+    <style>
+      /* seiten-styling merkliste (prototyp-lokal, keine aenderung an styles.css) */
+      .merk-kopfzeile {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 1.2rem;
+        margin-bottom: 2rem;
+      }
+      .merk-kopfzeile[hidden] { display: none; }
+      .leeren-confirm {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.7rem;
+        border: 1px solid var(--linie);
+        border-left: 3px solid var(--rust);
+        padding: 0.7rem 0.9rem;
+        font-size: 0.8rem;
+        color: var(--metall);
+      }
+      .leeren-confirm[hidden] { display: none; }
+      .leer-icon { display: inline-block; width: 56px; height: 56px; color: var(--metall); margin-bottom: 1.2rem; }
+      .leer-icon svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1; }
+      .leer-aktionen { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1.8rem; }
+      #leer { padding: 1.5rem 0 1rem; }
+    </style>
+
+    <section class="dunkel sektion">
+      <div class="container">
+        <p class="kicker">Portal / Merkliste</p>
+        <h1>Merkliste</h1>
+        <p class="section-note">Alles, was du mit dem Herz markierst, sammelt sich hier — gespeichert nur in deinem Browser, ohne Konto und ohne Server.</p>
+        <p class="hero-status"><span class="status-dot" aria-hidden="true"></span><span id="status-text">Lokal auf diesem Gerät gespeichert</span></p>
+      </div>
+    </section>
+
+    <!-- mit inseraten orthogonal (datendicht); der leer-zustand ist eine
+         erzaehl-flaeche und bekommt per js den diagonalen schnitt (dna-rhythmus) -->
+    <section class="hell hell--orthogonal" id="merk-sektion">
+      <div class="container">
+
+        <div class="merk-kopfzeile" id="merk-kopfzeile" hidden>
+          <div>
+            <p class="kicker">Gemerkte Inserate</p>
+            <h2 id="merk-titel" aria-live="polite">Merkliste wird geladen</h2>
+          </div>
+          <div>
+            <button type="button" class="btn btn--sekundaer" id="leeren-btn">Merkliste leeren</button>
+            <div class="leeren-confirm" id="leeren-confirm" hidden>
+              <span id="leeren-frage">Wirklich alle Inserate aus der Merkliste entfernen?</span>
+              <button type="button" class="btn btn--primaer" id="leeren-ja">Ja, leeren</button>
+              <button type="button" class="btn btn--sekundaer" id="leeren-nein">Abbrechen</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="karten-grid" id="merk-grid"></div>
+
+        <div id="leer" hidden>
+          <span class="leer-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M12 20s-7-4.5-9-9c-1.2-2.8.6-6 3.8-6 2 0 3.4 1.2 5.2 3.4C13.8 6.2 15.2 5 17.2 5c3.2 0 5 3.2 3.8 6-2 4.5-9 9-9 9z"/></svg>
+          </span>
+          <h2 id="leer-titel" tabindex="-1">Noch nichts gemerkt</h2>
+          <p class="section-note">Tippe beim Suchen auf das Herz eines Inserats — es landet dann hier. Die Merkliste wird nur lokal auf diesem Gerät gespeichert.</p>
+          <div class="leer-aktionen">
+            <a class="btn btn--primaer" href="resultate.html?angebot=miete">Mietwohnungen entdecken</a>
+            <a class="btn btn--sekundaer" href="resultate.html?angebot=kauf">Kaufobjekte entdecken</a>
+          </div>
+        </div>
+
+        <noscript>
+          <p class="section-note">Die Merkliste benötigt JavaScript — bitte aktiviere es, um gemerkte Inserate zu sehen.</p>
+        </noscript>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- ws:footer -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>wohnsignal</h3>
+        <p class="footer-claim">Dein nächstes Zuhause sendet schon.</p>
+        <p class="footer-hinweis">Prototyp · alle Inserate sind beispieldaten</p>
+      </div>
+      <div>
+        <h3>Portal</h3>
+        <ul class="footer-liste">
+          <li><a href="resultate.html?angebot=miete">Wohnung mieten</a></li>
+          <li><a href="resultate.html?angebot=kauf">Wohnung kaufen</a></li>
+          <li><a href="inserieren.html">Inserat aufgeben</a></li>
+          <li><a href="merkliste.html">Merkliste</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Rechtliches</h3>
+        <ul class="footer-liste">
+          <li><a href="#" title="Im Prototyp nicht hinterlegt">Impressum</a></li>
+          <li><a href="#" title="Im Prototyp nicht hinterlegt">Datenschutz</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+  <!-- /ws:footer -->
+
+  <script src="data.js?v=3" defer></script>
+  <script src="app.js?v=3" defer></script>
+  <script>
+    /* seiten-logik merkliste — laeuft nach data.js/app.js (defer), daher in DOMContentLoaded */
+    document.addEventListener('DOMContentLoaded', function () {
+      'use strict';
+      if (!window.WS || !window.WS_DATA) { return; }
+
+      var grid = document.getElementById('merk-grid');
+      var leer = document.getElementById('leer');
+      var sektion = document.getElementById('merk-sektion');
+      var kopfzeile = document.getElementById('merk-kopfzeile');
+      var titel = document.getElementById('merk-titel');
+      var statusText = document.getElementById('status-text');
+      var leerenBtn = document.getElementById('leeren-btn');
+      var confirmBox = document.getElementById('leeren-confirm');
+      var leerenJa = document.getElementById('leeren-ja');
+      var leerenNein = document.getElementById('leeren-nein');
+
+      /* gemerkte ids -> vorhandene listings (unbekannte ids still ueberspringen) */
+      function eintraege() {
+        var favs = window.WS.getFavs();
+        var out = [];
+        for (var i = 0; i < favs.length; i++) {
+          var l = window.WS.getListing(favs[i]);
+          if (l) { out.push(l); }
+        }
+        return out;
+      }
+
+      function renderListe() {
+        var liste = eintraege();
+        var n = liste.length;
+
+        /* jede neu-darstellung schliesst eine offene bestaetigung */
+        confirmBox.hidden = true;
+        leerenBtn.hidden = false;
+
+        if (n === 0) {
+          statusText.textContent = 'Noch keine Inserate gemerkt';
+          kopfzeile.hidden = true;
+          grid.innerHTML = '';
+          leer.hidden = false;
+          sektion.classList.remove('hell--orthogonal'); /* erzaehl-flaeche: diagonal */
+          return;
+        }
+        sektion.classList.add('hell--orthogonal'); /* datendicht: orthogonal */
+
+        var anzahl = (n === 1) ? '1 Inserat' : n + ' Inserate';
+        statusText.textContent = anzahl + ' gemerkt · lokal auf diesem Gerät gespeichert';
+        titel.textContent = anzahl + ' gemerkt';
+        kopfzeile.hidden = false;
+        leer.hidden = true;
+
+        var html = '';
+        for (var i = 0; i < liste.length; i++) { html += window.WS.renderCard(liste[i]); }
+        grid.innerHTML = html;
+        window.WS.syncFavButtons(grid);
+      }
+
+      /* inline-bestaetigung statt window.confirm */
+      leerenBtn.addEventListener('click', function () {
+        leerenBtn.hidden = true;
+        confirmBox.hidden = false;
+        try { leerenJa.focus(); } catch (e) { /* still ignorieren */ }
+      });
+      leerenNein.addEventListener('click', function () {
+        confirmBox.hidden = true;
+        leerenBtn.hidden = false;
+        try { leerenBtn.focus(); } catch (e) { /* still ignorieren */ }
+      });
+      leerenJa.addEventListener('click', function () {
+        var favs = window.WS.getFavs();
+        for (var i = 0; i < favs.length; i++) { window.WS.toggleFav(favs[i]); }
+        window.WS.syncFavButtons();
+        renderListe();
+        /* fokus explizit in den leerzustand — sonst faellt er auf <body> zurueck */
+        var leerTitel = document.getElementById('leer-titel');
+        if (leerTitel) { try { leerTitel.focus(); } catch (e) { /* still ignorieren */ } }
+      });
+
+      /* herz auf einer karte entfernt das inserat sofort aus der liste */
+      document.addEventListener('ws:favchange', renderListe);
+
+      renderListe();
+    });
+  </script>
+</body>
+</html>

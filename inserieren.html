@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Inserieren · wohnsignal</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%2312100e'/%3E%3Ccircle cx='8' cy='8' r='3' fill='%238b3527'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css?v=5">
+</head>
+<body>
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+  <!-- ws:header -->
+  <header class="site-header">
+    <div class="container site-header-innen">
+      <a class="logo" href="index.html">wohnsignal</a>
+      <nav class="hauptnav" aria-label="Hauptnavigation">
+        <a href="resultate.html?angebot=miete">Mieten</a>
+        <a href="resultate.html?angebot=kauf">Kaufen</a>
+        <a href="inserieren.html" aria-current="page">Inserieren</a>
+        <a href="merkliste.html">Merkliste</a>
+      </nav>
+    </div>
+  </header>
+  <!-- /ws:header -->
+
+  <main id="main">
+    <style>
+      /* seiten-styling inserieren (prototyp-lokal, keine aenderung an styles.css) */
+      .vorschau-spalte { position: static; }
+      @media (min-width: 900px) { .vorschau-spalte { position: sticky; top: 1.5rem; } }
+      .pseudo-label {
+        display: block;
+        font-size: 0.72rem;
+        letter-spacing: 0.18em;
+        text-transform: lowercase;
+        color: var(--metall);
+        margin-bottom: 0.35rem;
+      }
+      .formular .zettel-block { display: grid; gap: 1.1rem; align-content: start; margin-bottom: 0.6rem; }
+      .formular .zettel-titel { margin-bottom: 0; }
+      .merkmale-gruppe { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+      .formular label.merkmal {
+        position: relative;
+        display: inline-flex;
+        margin: 0;
+        color: var(--ink);
+        font-size: 0.78rem;
+        letter-spacing: 0.06em;
+        cursor: pointer;
+      }
+      .formular .merkmal input[type="checkbox"] {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        margin: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+      .merkmal span {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        padding: 0.45rem 0.9rem;
+        border: 1px solid var(--linie);
+        transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+      }
+      .merkmal:hover span { border-color: var(--ink); }
+      .merkmal input:checked + span { background: var(--ink); border-color: var(--ink); color: var(--chalk); }
+      .merkmal input:focus-visible + span { outline: 3px solid var(--ink); outline-offset: 2px; }
+    </style>
+
+    <section class="dunkel sektion">
+      <div class="container">
+        <p class="kicker">Portal / Inserieren</p>
+        <h1>Inserat aufgeben</h1>
+        <p class="section-note">Beschreibe dein Objekt Schritt für Schritt und sieh rechts daneben die Inserat-Karte live entstehen — der Entwurf bleibt vollständig auf deinem Gerät.</p>
+        <p class="hero-status"><span class="status-dot" aria-hidden="true"></span>Entwurfsmodus · es werden keine Daten versendet</p>
+      </div>
+    </section>
+
+    <section class="hell hell--orthogonal">
+      <div class="container">
+        <div class="detail-grid">
+
+          <div>
+            <form class="formular zettel" id="inserat-form" novalidate>
+
+              <section class="zettel-block" aria-labelledby="zt-objekt">
+                <h2 class="zettel-titel" id="zt-objekt">Objekt</h2>
+                <div class="feld-reihe">
+                  <div>
+                    <label for="typ">Objekttyp</label>
+                    <select id="typ" name="typ">
+                      <option value="wohnung" selected>Wohnung</option>
+                      <option value="studio">Studio</option>
+                      <option value="loft">Loft</option>
+                      <option value="attika">Attika</option>
+                      <option value="haus">Haus</option>
+                    </select>
+                  </div>
+                  <div>
+                    <span class="pseudo-label" id="angebot-label">Angebot</span>
+                    <div class="segmente" role="group" aria-labelledby="angebot-label">
+                      <button type="button" class="segment" data-angebot="miete" aria-pressed="true">Miete</button>
+                      <button type="button" class="segment" data-angebot="kauf" aria-pressed="false">Kauf</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="feld-reihe">
+                  <div>
+                    <label for="zimmer">Zimmer</label>
+                    <select id="zimmer" name="zimmer">
+                      <option value="1">1</option>
+                      <option value="1.5">1.5</option>
+                      <option value="2">2</option>
+                      <option value="2.5">2.5</option>
+                      <option value="3">3</option>
+                      <option value="3.5" selected>3.5</option>
+                      <option value="4">4</option>
+                      <option value="4.5">4.5</option>
+                      <option value="5">5</option>
+                      <option value="5.5">5.5</option>
+                      <option value="6">6</option>
+                      <option value="6.5">6.5</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="flaeche">Fläche (m²)</label>
+                    <input id="flaeche" name="flaeche" type="number" inputmode="numeric" min="10" max="2000" placeholder="z. B. 80">
+                  </div>
+                </div>
+                <div>
+                  <label for="etage">Etage</label>
+                  <input id="etage" name="etage" type="text" placeholder="z. B. 3. OG, Hochparterre, EG bis DG">
+                </div>
+              </section>
+
+              <section class="zettel-block" aria-labelledby="zt-lage">
+                <h2 class="zettel-titel" id="zt-lage">Lage</h2>
+                <div>
+                  <label for="strasse">Strasse und Nummer</label>
+                  <input id="strasse" name="strasse" type="text" placeholder="z. B. Musterweg 12">
+                </div>
+                <div class="feld-reihe">
+                  <div>
+                    <label for="plz">PLZ</label>
+                    <input id="plz" name="plz" type="text" inputmode="numeric" maxlength="4" placeholder="z. B. 3800">
+                  </div>
+                  <div>
+                    <label for="ort">Ort</label>
+                    <input id="ort" name="ort" type="text" placeholder="z. B. Interlaken">
+                  </div>
+                </div>
+                <div>
+                  <label for="kanton">Kanton</label>
+                  <select id="kanton" name="kanton">
+                    <option value="" selected>Kanton wählen</option>
+                    <option value="AG">Aargau (AG)</option>
+                    <option value="AI">Appenzell Innerrhoden (AI)</option>
+                    <option value="AR">Appenzell Ausserrhoden (AR)</option>
+                    <option value="BE">Bern (BE)</option>
+                    <option value="BL">Basel-Landschaft (BL)</option>
+                    <option value="BS">Basel-Stadt (BS)</option>
+                    <option value="FR">Freiburg (FR)</option>
+                    <option value="GE">Genf (GE)</option>
+                    <option value="GL">Glarus (GL)</option>
+                    <option value="GR">Graubünden (GR)</option>
+                    <option value="JU">Jura (JU)</option>
+                    <option value="LU">Luzern (LU)</option>
+                    <option value="NE">Neuenburg (NE)</option>
+                    <option value="NW">Nidwalden (NW)</option>
+                    <option value="OW">Obwalden (OW)</option>
+                    <option value="SG">St. Gallen (SG)</option>
+                    <option value="SH">Schaffhausen (SH)</option>
+                    <option value="SO">Solothurn (SO)</option>
+                    <option value="SZ">Schwyz (SZ)</option>
+                    <option value="TG">Thurgau (TG)</option>
+                    <option value="TI">Tessin (TI)</option>
+                    <option value="UR">Uri (UR)</option>
+                    <option value="VD">Waadt (VD)</option>
+                    <option value="VS">Wallis (VS)</option>
+                    <option value="ZG">Zug (ZG)</option>
+                    <option value="ZH">Zürich (ZH)</option>
+                  </select>
+                </div>
+              </section>
+
+              <section class="zettel-block" aria-labelledby="zt-konditionen">
+                <h2 class="zettel-titel" id="zt-konditionen">Konditionen</h2>
+                <div class="feld-reihe">
+                  <div>
+                    <label for="preis" id="preis-label">Preis (CHF pro Monat)</label>
+                    <input id="preis" name="preis" type="number" inputmode="numeric" min="1" step="1" placeholder="z. B. 1850">
+                  </div>
+                  <div>
+                    <label for="verfuegbar">Verfügbar ab</label>
+                    <input id="verfuegbar" name="verfuegbar" type="text" placeholder="z. B. 01.11.2026 oder nach Vereinbarung">
+                  </div>
+                </div>
+                <p class="bildunterschrift">Prototyp — Veröffentlichung ist in dieser Vorschau nicht möglich</p>
+                <div>
+                  <span class="pseudo-label" id="merkmale-label">Merkmale</span>
+                  <div class="merkmale-gruppe" role="group" aria-labelledby="merkmale-label">
+                    <label class="merkmal"><input type="checkbox" name="merkmale" value="balkon"><span>Balkon</span></label>
+                    <label class="merkmal"><input type="checkbox" name="merkmale" value="terrasse"><span>Terrasse</span></label>
+                    <label class="merkmal"><input type="checkbox" name="merkmale" value="lift"><span>Lift</span></label>
+                    <label class="merkmal"><input type="checkbox" name="merkmale" value="einbauküche"><span>Einbauküche</span></label>
+                    <label class="merkmal"><input type="checkbox" name="merkmale" value="parkett"><span>Parkett</span></label>
+                    <label class="merkmal"><input type="checkbox" name="merkmale" value="kellerabteil"><span>Kellerabteil</span></label>
+                    <label class="merkmal"><input type="checkbox" name="merkmale" value="gartensitzplatz"><span>Gartensitzplatz</span></label>
+                    <label class="merkmal"><input type="checkbox" name="merkmale" value="einstellplatz"><span>Einstellplatz</span></label>
+                    <label class="merkmal"><input type="checkbox" name="merkmale" value="velokeller"><span>Velokeller</span></label>
+                    <label class="merkmal"><input type="checkbox" name="merkmale" value="minergie"><span>Minergie</span></label>
+                    <label class="merkmal"><input type="checkbox" name="merkmale" value="haustiere erlaubt"><span>Haustiere erlaubt</span></label>
+                  </div>
+                </div>
+              </section>
+
+              <section class="zettel-block" aria-labelledby="zt-beschreibung">
+                <h2 class="zettel-titel" id="zt-beschreibung">Beschreibung</h2>
+                <div>
+                  <label for="beschreibung">Beschreibung des Objekts</label>
+                  <textarea id="beschreibung" name="beschreibung" placeholder="Zustand, Ausrichtung, Umgebung, Besonderheiten — ehrlich beschrieben wirkt am besten."></textarea>
+                </div>
+              </section>
+
+              <section class="zettel-block" aria-labelledby="zt-kontakt">
+                <h2 class="zettel-titel" id="zt-kontakt">Kontakt</h2>
+                <div class="feld-reihe">
+                  <div>
+                    <label for="kontakt-name">Name</label>
+                    <input id="kontakt-name" name="kontakt-name" type="text" autocomplete="name" placeholder="Vor- und Nachname">
+                  </div>
+                  <div>
+                    <label for="kontakt-email">E-Mail</label>
+                    <input id="kontakt-email" name="kontakt-email" type="email" autocomplete="email" placeholder="name@beispiel.ch">
+                  </div>
+                </div>
+              </section>
+
+              <p class="form-hinweis">Vorschau-Modus: Dieses Formular sendet keine Daten.</p>
+              <div>
+                <button type="submit" class="btn btn--primaer">Vorschau prüfen</button>
+              </div>
+              <p class="form-hinweis" id="submit-status" role="status" tabindex="-1" hidden></p>
+
+            </form>
+          </div>
+
+          <aside class="vorschau-spalte" aria-label="Live-Vorschau">
+            <p class="kicker">Live-Vorschau</p>
+            <div id="vorschau">
+              <p class="section-note">Die Vorschau erscheint, sobald JavaScript aktiv ist.</p>
+            </div>
+            <p class="bildunterschrift">So erscheint dein Inserat in den Suchresultaten · Beispieldarstellung</p>
+          </aside>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- erzaehl-sektion: diagonaler schnitt (dna-rhythmus), formular oben bleibt orthogonal -->
+    <section class="hell">
+      <div class="container">
+        <p class="kicker">So geht es weiter</p>
+        <h2>Vom Entwurf zum Inserat</h2>
+        <ol class="schritte" style="margin-top:1.6rem;max-width:640px">
+          <li class="schritt">
+            <div>
+              <h3>Beschreiben</h3>
+              <p class="section-note">Objekt, Lage und Konditionen erfassen — die Vorschau-Karte läuft beim Tippen live mit.</p>
+            </div>
+          </li>
+          <li class="schritt">
+            <div>
+              <h3>Prüfen</h3>
+              <p class="section-note">Titel, Preis und Merkmale in der Karte kontrollieren, so wie sie später in den Resultaten stünde.</p>
+            </div>
+          </li>
+          <li class="schritt">
+            <div>
+              <h3>Veröffentlichen</h3>
+              <p class="section-note">In diesem Prototyp deaktiviert — es werden keine Daten versendet und nichts gespeichert.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <!-- ws:footer -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>wohnsignal</h3>
+        <p class="footer-claim">Dein nächstes Zuhause sendet schon.</p>
+        <p class="footer-hinweis">Prototyp · alle Inserate sind beispieldaten</p>
+      </div>
+      <div>
+        <h3>Portal</h3>
+        <ul class="footer-liste">
+          <li><a href="resultate.html?angebot=miete">Wohnung mieten</a></li>
+          <li><a href="resultate.html?angebot=kauf">Wohnung kaufen</a></li>
+          <li><a href="inserieren.html">Inserat aufgeben</a></li>
+          <li><a href="merkliste.html">Merkliste</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Rechtliches</h3>
+        <ul class="footer-liste">
+          <li><a href="#" title="Im Prototyp nicht hinterlegt">Impressum</a></li>
+          <li><a href="#" title="Im Prototyp nicht hinterlegt">Datenschutz</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+  <!-- /ws:footer -->
+
+  <script src="data.js?v=3" defer></script>
+  <script src="app.js?v=3" defer></script>
+  <script>
+    /* seiten-logik inserieren — laeuft nach data.js/app.js (defer), daher in DOMContentLoaded */
+    document.addEventListener('DOMContentLoaded', function () {
+      'use strict';
+      if (!window.WS) { return; }
+
+      var form = document.getElementById('inserat-form');
+      var vorschau = document.getElementById('vorschau');
+      var status = document.getElementById('submit-status');
+      var preisLabel = document.getElementById('preis-label');
+      var preisInput = document.getElementById('preis');
+      var segmente = document.querySelectorAll('.segment[data-angebot]');
+      var angebot = 'miete';
+
+      function feldwert(name) {
+        var el = form.elements[name];
+        return (el && typeof el.value === 'string') ? el.value.replace(/^\s+|\s+$/g, '') : '';
+      }
+
+      /* baut aus dem formular ein listing-objekt fuer WS.renderCard */
+      function buildListing() {
+        var typ = feldwert('typ') || 'wohnung';
+        var zimmer = parseFloat(feldwert('zimmer'));
+        if (isNaN(zimmer)) { zimmer = 3.5; }
+        var flaeche = parseInt(feldwert('flaeche'), 10);
+        if (isNaN(flaeche) || flaeche < 1) { flaeche = 80; }
+        var preis = parseInt(feldwert('preis'), 10);
+        if (isNaN(preis) || preis < 1) { preis = (angebot === 'miete') ? 1850 : 850000; }
+        var ort = feldwert('ort') || 'musterort';
+        var merkmale = [];
+        var boxes = form.querySelectorAll('input[name="merkmale"]:checked');
+        for (var i = 0; i < boxes.length; i++) { merkmale.push(boxes[i].value); }
+        return {
+          id: 'ws-vorschau',
+          titel: zimmer + '-zimmer-' + typ + ' in ' + ort,
+          typ: typ,
+          angebot: angebot,
+          ort: ort,
+          kanton: feldwert('kanton') || 'ch',
+          strasse: feldwert('strasse') || 'musterweg 12',
+          preisChf: preis,
+          zimmer: zimmer,
+          flaecheM2: flaeche,
+          etage: feldwert('etage') || '3. og',
+          verfuegbarAb: feldwert('verfuegbar') || 'nach vereinbarung',
+          merkmale: merkmale,
+          beschreibung: feldwert('beschreibung'),
+          sceneHint: (typ === 'attika') ? 'terrasse' : '',
+          neu: true
+        };
+      }
+
+      /* karte rendern und interaktive elemente der vorschau stilllegen */
+      function render() {
+        vorschau.innerHTML = window.WS.renderCard(buildListing());
+        var links = vorschau.querySelectorAll('a');
+        for (var i = 0; i < links.length; i++) {
+          links[i].removeAttribute('href');
+          links[i].removeAttribute('tabindex');
+        }
+        var fav = vorschau.querySelector('[data-fav-id]');
+        if (fav) {
+          fav.removeAttribute('data-fav-id');
+          fav.setAttribute('disabled', '');
+          fav.setAttribute('tabindex', '-1');
+          fav.setAttribute('aria-label', 'Merken ist in der Vorschau deaktiviert');
+        }
+      }
+
+      /* segmented-toggle miete/kauf */
+      function setAngebot(neu) {
+        angebot = neu;
+        for (var i = 0; i < segmente.length; i++) {
+          segmente[i].setAttribute('aria-pressed', String(segmente[i].getAttribute('data-angebot') === neu));
+        }
+        if (neu === 'miete') {
+          preisLabel.textContent = 'Preis (CHF pro Monat)';
+          preisInput.placeholder = 'z. B. 1850';
+        } else {
+          preisLabel.textContent = 'Kaufpreis (CHF)';
+          preisInput.placeholder = 'z. B. 850000';
+        }
+        render();
+      }
+      for (var s = 0; s < segmente.length; s++) {
+        segmente[s].addEventListener('click', function () {
+          setAngebot(this.getAttribute('data-angebot'));
+        });
+      }
+
+      form.addEventListener('input', render);
+      form.addEventListener('change', render);
+
+      /* submit = reine vorschau, KEIN netzwerk-request */
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        render();
+        status.textContent = 'vorschau geprüft — es wurden keine daten versendet.';
+        status.hidden = false;
+        try { status.focus(); } catch (err) { /* still ignorieren */ }
+      });
+
+      render();
+    });
+  </script>
+</body>
+</html>

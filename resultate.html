@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Inserate · wohnsignal</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%2312100e'/%3E%3Ccircle cx='8' cy='8' r='3' fill='%238b3527'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css?v=5">
+</head>
+<body>
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+  <!-- ws:header -->
+  <header class="site-header">
+    <div class="container site-header-innen">
+      <a class="logo" href="index.html">wohnsignal</a>
+      <nav class="hauptnav" aria-label="Hauptnavigation">
+        <a href="resultate.html?angebot=miete">Mieten</a>
+        <a href="resultate.html?angebot=kauf">Kaufen</a>
+        <a href="inserieren.html">Inserieren</a>
+        <a href="merkliste.html">Merkliste</a>
+      </nav>
+    </div>
+  </header>
+  <!-- /ws:header -->
+
+  <main id="main">
+    <style>
+      /* seitenspezifisches feintuning — nur resultate.html */
+      .seitenkopf { padding: 3.2rem 0 2.6rem; }
+      .seitenkopf h1 { margin-bottom: 0.5rem; }
+      .filter-gruppe { display: inline-flex; align-items: center; gap: 0.5rem; }
+      .filterbar .feld { width: auto; min-width: 0; }
+      #f-ort { width: 12rem; }
+      #filter-reset { margin-left: auto; }
+      .ergebnis-sektion { min-height: 55vh; }
+      .ergebnis-leer {
+        border: 1px solid var(--linie);
+        border-left: 3px solid var(--rust);
+        padding: 2rem 1.6rem;
+        max-width: 52ch;
+        display: grid;
+        gap: 1rem;
+        justify-items: start;
+      }
+      /* author-display schlaegt die ua-regel fuer [hidden] — guard wie in merkliste.html */
+      .ergebnis-leer[hidden] { display: none; }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+    </style>
+
+    <!-- kompakter seitenkopf (kein grosser hero) -->
+    <section class="seitenkopf dunkel">
+      <div class="container">
+        <p class="kicker">Suchergebnisse</p>
+        <h1>Inserate</h1>
+        <p class="section-note" id="ergebnis-zaehler" aria-live="polite">Inserate werden geladen …</p>
+      </div>
+    </section>
+
+    <!-- sticky filterbar — orthogonal, direkt auf body-ebene (kein clip-container) -->
+    <div class="filterbar">
+      <div class="container">
+        <form class="filterbar-innen" id="filter-form" role="search" aria-label="Inserate filtern">
+          <div class="filter-gruppe" role="group" aria-label="Angebot">
+            <span class="filterbar-label" aria-hidden="true">Angebot</span>
+            <div class="segmente">
+              <button type="button" class="segment" data-angebot="" aria-pressed="true">Alle</button>
+              <button type="button" class="segment" data-angebot="miete" aria-pressed="false">Mieten</button>
+              <button type="button" class="segment" data-angebot="kauf" aria-pressed="false">Kaufen</button>
+            </div>
+          </div>
+          <div class="filter-gruppe">
+            <label class="filterbar-label" for="f-ort">Ort oder PLZ</label>
+            <input class="feld" id="f-ort" type="search" placeholder="z. B. Bern oder 3007" autocomplete="off">
+          </div>
+          <div class="filter-gruppe">
+            <label class="filterbar-label" for="f-zimmer">Zimmer ab</label>
+            <select class="feld" id="f-zimmer">
+              <option value="">Alle Zimmer</option>
+              <option value="1.5">Ab 1.5 Zi.</option>
+              <option value="2.5">Ab 2.5 Zi.</option>
+              <option value="3.5">Ab 3.5 Zi.</option>
+              <option value="4.5">Ab 4.5 Zi.</option>
+              <option value="5.5">Ab 5.5 Zi.</option>
+            </select>
+          </div>
+          <div class="filter-gruppe">
+            <label class="filterbar-label" for="f-preis">Preis bis</label>
+            <select class="feld" id="f-preis">
+              <option value="">Alle Preise</option>
+              <optgroup label="Miete / Mt.">
+                <option value="1500">Bis CHF 1'500</option>
+                <option value="1750">Bis CHF 1'750</option>
+                <option value="2000">Bis CHF 2'000</option>
+                <option value="2500">Bis CHF 2'500</option>
+                <option value="3000">Bis CHF 3'000</option>
+                <option value="4000">Bis CHF 4'000</option>
+              </optgroup>
+              <optgroup label="Kauf">
+                <option value="800000">Bis CHF 800'000</option>
+                <option value="1000000">Bis CHF 1'000'000</option>
+                <option value="1250000">Bis CHF 1'250'000</option>
+                <option value="1500000">Bis CHF 1'500'000</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="filter-gruppe">
+            <label class="filterbar-label" for="f-sort">Sortierung</label>
+            <select class="feld" id="f-sort">
+              <option value="neu">Neuste zuerst</option>
+              <option value="preis-auf">Preis aufsteigend</option>
+              <option value="preis-ab">Preis absteigend</option>
+              <option value="flaeche-ab">Fläche absteigend</option>
+            </select>
+          </div>
+          <button type="button" class="chip" id="chip-merkliste" aria-pressed="false">Nur Merkliste</button>
+          <button type="button" class="btn btn--sekundaer" id="filter-reset">Filter zurücksetzen</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ergebnis-grid: datendicht, deshalb orthogonal (kein diagonalschnitt) -->
+    <section class="hell hell--orthogonal ergebnis-sektion">
+      <div class="container">
+        <h2 class="sr-only">Suchergebnisse</h2>
+        <noscript>
+          <p class="section-note">Für die Inseratliste bitte JavaScript aktivieren — dieser Prototyp rendert die Karten client-seitig.</p>
+        </noscript>
+        <div class="karten-grid" id="ergebnis-grid"></div>
+        <div class="ergebnis-leer" id="ergebnis-leer" hidden>
+          <h2>Keine Inserate gefunden</h2>
+          <p class="section-note">Kein Inserat passt zu deinen Filtern. Lockere die Kriterien — oder setze alles zurück und starte neu.</p>
+          <button type="button" class="btn btn--primaer" id="leer-reset">Filter zurücksetzen</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ws:footer -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>wohnsignal</h3>
+        <p class="footer-claim">Dein nächstes Zuhause sendet schon.</p>
+        <p class="footer-hinweis">Prototyp · alle Inserate sind beispieldaten</p>
+      </div>
+      <div>
+        <h3>Portal</h3>
+        <ul class="footer-liste">
+          <li><a href="resultate.html?angebot=miete">Wohnung mieten</a></li>
+          <li><a href="resultate.html?angebot=kauf">Wohnung kaufen</a></li>
+          <li><a href="inserieren.html">Inserat aufgeben</a></li>
+          <li><a href="merkliste.html">Merkliste</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Rechtliches</h3>
+        <ul class="footer-liste">
+          <li><a href="#" title="Im Prototyp nicht hinterlegt">Impressum</a></li>
+          <li><a href="#" title="Im Prototyp nicht hinterlegt">Datenschutz</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+  <!-- /ws:footer -->
+
+  <script src="data.js?v=3" defer></script>
+  <script src="app.js?v=3" defer></script>
+  <script>
+  /* resultate.html — seitenlogik: filtern, sortieren, url-sync (laeuft nach data.js/app.js, da DOMContentLoaded) */
+  (function () {
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var WS = window.WS;
+      var DATA = window.WS_DATA;
+      if (!WS || !DATA || !DATA.listings) { return; }
+
+      var grid = document.getElementById('ergebnis-grid');
+      var leer = document.getElementById('ergebnis-leer');
+      var zaehler = document.getElementById('ergebnis-zaehler');
+      var form = document.getElementById('filter-form');
+      var ortFeld = document.getElementById('f-ort');
+      var zimmerFeld = document.getElementById('f-zimmer');
+      var preisFeld = document.getElementById('f-preis');
+      var sortFeld = document.getElementById('f-sort');
+      var merkChip = document.getElementById('chip-merkliste');
+      var segmente = form.querySelectorAll('.segment[data-angebot]');
+      var resetBtns = [document.getElementById('filter-reset'), document.getElementById('leer-reset')];
+
+      var state = { angebot: '', ort: '', zimmer: '', preis: '', sort: 'neu', merkliste: false };
+      var erstesRendern = true;
+
+      /* preis-stufen je angebot — das select zeigt nur passende optionen (wie index.html) */
+      var PREIS_STUFEN = {
+        miete: [1500, 1750, 2000, 2500, 3000, 4000],
+        kauf: [800000, 1000000, 1250000, 1500000]
+      };
+
+      function preisOptgroup(art, label) {
+        var html = '<optgroup label="' + label + '">';
+        for (var i = 0; i < PREIS_STUFEN[art].length; i++) {
+          var w = PREIS_STUFEN[art][i];
+          html += '<option value="' + w + '">Bis ' + WS.formatChf(w).replace('chf', 'CHF') + '</option>';
+        }
+        return html + '</optgroup>';
+      }
+
+      function fuellePreisSelect() {
+        var html = '<option value="">Alle Preise</option>';
+        if (state.angebot !== 'kauf') { html += preisOptgroup('miete', 'Miete / Mt.'); }
+        if (state.angebot !== 'miete') { html += preisOptgroup('kauf', 'Kauf'); }
+        preisFeld.innerHTML = html;
+        /* url-werte ausserhalb der stufen als option nachtragen */
+        if (state.preis) {
+          ensureOption(preisFeld, state.preis, 'Bis ' + WS.formatChf(parseInt(state.preis, 10)).replace('chf', 'CHF'));
+        }
+      }
+
+      /* beim segment-wechsel eine nicht mehr passende preisauswahl zuruecksetzen */
+      function preisZuAngebot() {
+        if (!state.preis) { return; }
+        var wert = parseInt(state.preis, 10);
+        if ((state.angebot === 'miete' && PREIS_STUFEN.kauf.indexOf(wert) > -1)
+          || (state.angebot === 'kauf' && PREIS_STUFEN.miete.indexOf(wert) > -1)) {
+          state.preis = '';
+        }
+      }
+
+      /* "neuste zuerst" = neu:true zuerst, danach id absteigend (ws-016 vor ws-001) */
+      function idAbsteigend(a, b) { return a.id < b.id ? 1 : (a.id > b.id ? -1 : 0); }
+      var SORTS = {
+        'neu': function (a, b) { if (a.neu !== b.neu) { return a.neu ? -1 : 1; } return idAbsteigend(a, b); },
+        'preis-auf': function (a, b) { return (a.preisChf - b.preisChf) || idAbsteigend(a, b); },
+        'preis-ab': function (a, b) { return (b.preisChf - a.preisChf) || idAbsteigend(a, b); },
+        'flaeche-ab': function (a, b) { return (b.flaecheM2 - a.flaecheM2) || idAbsteigend(a, b); }
+      };
+
+      /* url-werte, die nicht in den select-optionen stehen, als option nachtragen */
+      function ensureOption(select, wert, label) {
+        if (!wert) { return; }
+        for (var i = 0; i < select.options.length; i++) {
+          if (select.options[i].value === wert) { return; }
+        }
+        var opt = document.createElement('option');
+        opt.value = wert;
+        opt.textContent = label;
+        select.appendChild(opt);
+      }
+
+      /* umlaut-faltung: "zuerich" findet "zürich" und umgekehrt */
+      function falte(s) {
+        return s.toLowerCase()
+          .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue');
+      }
+
+      function gefiltert() {
+        var favs = WS.getFavs();
+        var ort = falte(state.ort.trim());
+        var liste = DATA.listings.filter(function (l) {
+          if (state.angebot && l.angebot !== state.angebot) { return false; }
+          if (ort && falte(l.ort + ' ' + l.kanton + ' ' + (l.plz || '')).indexOf(ort) === -1) { return false; }
+          if (state.zimmer && !(l.zimmer >= parseFloat(state.zimmer))) { return false; }
+          if (state.preis && !(l.preisChf <= parseInt(state.preis, 10))) { return false; }
+          if (state.merkliste && favs.indexOf(l.id) === -1) { return false; }
+          return true;
+        });
+        liste.sort(SORTS[state.sort] || SORTS.neu);
+        return liste;
+      }
+
+      function syncControls() {
+        for (var i = 0; i < segmente.length; i++) {
+          segmente[i].setAttribute('aria-pressed', String(segmente[i].getAttribute('data-angebot') === state.angebot));
+        }
+        if (ortFeld.value !== state.ort) { ortFeld.value = state.ort; }
+        zimmerFeld.value = state.zimmer;
+        fuellePreisSelect();
+        preisFeld.value = state.preis;
+        sortFeld.value = state.sort;
+        merkChip.setAttribute('aria-pressed', String(state.merkliste));
+        syncNav();
+      }
+
+      /* aria-current in der hauptnav dem aktiven segment nachfuehren */
+      function syncNav() {
+        var links = document.querySelectorAll('.hauptnav a');
+        for (var i = 0; i < links.length; i++) {
+          var href = links[i].getAttribute('href') || '';
+          if (state.angebot && href.indexOf('angebot=' + state.angebot) > -1) {
+            links[i].setAttribute('aria-current', 'page');
+          } else {
+            links[i].removeAttribute('aria-current');
+          }
+        }
+      }
+
+      function syncUrl() {
+        try {
+          var p = new URLSearchParams();
+          if (state.angebot) { p.set('angebot', state.angebot); }
+          if (state.ort.trim()) { p.set('ort', state.ort.trim()); }
+          if (state.zimmer) { p.set('zimmer', state.zimmer); }
+          if (state.preis) { p.set('preis', state.preis); }
+          if (state.sort !== 'neu') { p.set('sort', state.sort); }
+          if (state.merkliste) { p.set('merkliste', '1'); }
+          var q = p.toString();
+          window.history.replaceState(null, '', window.location.pathname + (q ? '?' + q : ''));
+        } catch (e) { /* alte browser / restriktives file:// — url-sync ist nur komfort */ }
+      }
+
+      function render() {
+        var liste = gefiltert();
+        zaehler.textContent = liste.length + ' von ' + DATA.listings.length + ' Inseraten';
+        if (liste.length === 0) {
+          grid.innerHTML = '';
+          leer.hidden = false;
+        } else {
+          leer.hidden = true;
+          grid.innerHTML = liste.map(function (l) { return WS.renderCard(l); }).join('');
+          if (erstesRendern) {
+            var karten = grid.querySelectorAll('.karte');
+            for (var i = 0; i < karten.length; i++) { karten[i].classList.add('reveal'); }
+            WS.initReveals();
+          }
+        }
+        erstesRendern = false;
+      }
+
+      function update() {
+        syncControls();
+        syncUrl();
+        render();
+      }
+
+      function reset() {
+        state.angebot = '';
+        state.ort = '';
+        state.zimmer = '';
+        state.preis = '';
+        state.sort = 'neu';
+        state.merkliste = false;
+        update();
+      }
+
+      /* init aus url-query: angebot, ort, zimmer, preis (+ sort, merkliste) */
+      var qa = WS.qs('angebot');
+      if (qa === 'miete' || qa === 'kauf') { state.angebot = qa; }
+      var qo = WS.qs('ort');
+      if (qo) { state.ort = qo; }
+      var qz = WS.qs('zimmer');
+      if (qz && !isNaN(parseFloat(qz))) {
+        state.zimmer = String(parseFloat(qz));
+        ensureOption(zimmerFeld, state.zimmer, 'Ab ' + state.zimmer + ' Zi.');
+      }
+      var qp = WS.qs('preis');
+      if (qp && !isNaN(parseInt(qp, 10))) {
+        state.preis = String(parseInt(qp, 10));
+        ensureOption(preisFeld, state.preis, 'Bis ' + WS.formatChf(parseInt(qp, 10)).replace('chf', 'CHF'));
+      }
+      var qsort = WS.qs('sort');
+      if (qsort && SORTS[qsort]) { state.sort = qsort; }
+      if (WS.qs('merkliste') === '1') { state.merkliste = true; }
+
+      /* events: sofort filtern, kein submit noetig */
+      form.addEventListener('submit', function (e) { e.preventDefault(); });
+      for (var s = 0; s < segmente.length; s++) {
+        segmente[s].addEventListener('click', function () {
+          state.angebot = this.getAttribute('data-angebot');
+          preisZuAngebot();
+          update();
+        });
+      }
+      ortFeld.addEventListener('input', function () { state.ort = this.value; update(); });
+      zimmerFeld.addEventListener('change', function () { state.zimmer = this.value; update(); });
+      preisFeld.addEventListener('change', function () { state.preis = this.value; update(); });
+      sortFeld.addEventListener('change', function () { state.sort = this.value; update(); });
+      merkChip.addEventListener('click', function () { state.merkliste = !state.merkliste; update(); });
+      for (var r = 0; r < resetBtns.length; r++) {
+        if (resetBtns[r]) { resetBtns[r].addEventListener('click', reset); }
+      }
+
+      /* fav-herzen togglen via delegiertem app.js-handler; hier nur den merkliste-filter live halten */
+      document.addEventListener('ws:favchange', function () {
+        if (state.merkliste) { render(); }
+      });
+
+      update();
+    });
+  })();
+  </script>
+</body>
+</html>
