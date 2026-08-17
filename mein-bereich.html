@@ -135,6 +135,17 @@
       </div>
     </section>
 
+    <section class="hell" id="admin-bereich" hidden>
+      <div class="container">
+        <p class="kicker">Redaktion</p>
+        <h2>Moderation</h2>
+        <p class="section-note">Eingereichte Inserate freigeben oder ablehnen — erst nach deiner Freigabe erscheinen sie im Portal.</p>
+        <div id="moderation-liste" style="margin-top:1.6rem"></div>
+        <h3 style="margin-top:3rem">Neueste Anfragen</h3>
+        <div id="anfragen-liste" style="margin-top:1rem; overflow-x: auto;"></div>
+      </div>
+    </section>
+
     <section class="dunkel sektion">
       <div class="container">
         <p class="kicker">Ausblick</p>
@@ -171,7 +182,7 @@
       <div>
         <h3>wohnsignal</h3>
         <p class="footer-claim">Dein nächstes Zuhause sendet schon.</p>
-        <p class="footer-hinweis">Prototyp · alle Inserate sind beispieldaten</p>
+        <p class="footer-hinweis">Demo-Portal · beispieldaten sind gekennzeichnet</p>
         <p class="footer-hinweis">Ein Demo-Projekt von TOMORROWWORKS</p>
       </div>
       <div>
@@ -198,7 +209,7 @@
   <script src="konfig.js?v=2" defer></script>
   <script src="auth.js?v=1" defer></script>
   <script src="data.js?v=5" defer></script>
-  <script src="app.js?v=5" defer></script>
+  <script src="app.js?v=6" defer></script>
   <script>
     /* mein-bereich — zwei modi:
        mit echter sitzung: eigene inserate aus der datenbank, KEINE fantasiezahlen.
@@ -280,10 +291,107 @@
           });
       }
 
+      /* ---------- admin: moderation + anfragen (nur rolle 'admin') ---------- */
+      function adminBereich() {
+        var AUTH = window.WS_AUTH;
+        var esc = window.WS.escapeHtml;
+        var sektion = document.getElementById('admin-bereich');
+        var modListe = document.getElementById('moderation-liste');
+        var anfListe = document.getElementById('anfragen-liste');
+        if (!sektion) { return; }
+        sektion.hidden = false;
+
+        function ladeModeration() {
+          modListe.innerHTML = '<p class="section-note">Eingereichte Inserate werden geladen …</p>';
+          AUTH.rest('/inserate?status=eq.eingereicht&order=created_at.asc&select=id,titel,ort,plz,angebot,preis_eur,zimmer,flaeche_m2,beschreibung,created_at')
+            .then(function (res) { return res.ok ? res.json() : Promise.reject(new Error('HTTP ' + res.status)); })
+            .then(function (liste) {
+              if (!liste.length) {
+                modListe.innerHTML = '<p class="section-note">Nichts zu moderieren — keine offenen Einreichungen.</p>';
+                return;
+              }
+              var html = '';
+              for (var i = 0; i < liste.length; i++) {
+                var l = liste[i];
+                var preis = window.WS.formatEur(l.preis_eur) + (l.angebot === 'miete' ? ' / Monat' : '');
+                html += '<div class="zettel-block" style="border: 1px solid var(--linie); padding: 1.2rem;">'
+                  + '<h3 style="margin-bottom: 0.4rem">' + esc(l.titel) + '</h3>'
+                  + '<p class="section-note">' + esc(l.plz + ' ' + l.ort) + ' · ' + esc(preis) + ' · '
+                  + esc(window.WS.formatZimmer(l.zimmer, true)) + ' · ' + esc(l.flaeche_m2 + ' m²') + '</p>'
+                  + '<p class="section-note" style="margin-top: 0.6rem">' + esc((l.beschreibung || '').slice(0, 240)) + '</p>'
+                  + '<p style="margin-top: 1rem">'
+                  + '<button type="button" class="btn btn--primaer" data-mod-id="' + esc(l.id) + '" data-mod-status="aktiv">Freigeben</button> '
+                  + '<button type="button" class="btn btn--sekundaer" data-mod-id="' + esc(l.id) + '" data-mod-status="abgelehnt">Ablehnen</button>'
+                  + '</p></div>';
+              }
+              modListe.innerHTML = html;
+            })
+            .catch(function () {
+              modListe.innerHTML = '<p class="section-note">Moderationsliste konnte nicht geladen werden.</p>';
+            });
+        }
+
+        function ladeAnfragen() {
+          AUTH.rest('/anfragen?order=created_at.desc&limit=20&select=created_at,inserat_titel,name,email,nachricht,status')
+            .then(function (res) { return res.ok ? res.json() : Promise.reject(new Error('HTTP ' + res.status)); })
+            .then(function (liste) {
+              if (!liste.length) {
+                anfListe.innerHTML = '<p class="section-note">Noch keine Anfragen eingegangen.</p>';
+                return;
+              }
+              var html = '<table class="vergleichs-tabelle" style="border-collapse: collapse; width: 100%; min-width: 640px; font-size: 0.85rem;"><thead><tr>'
+                + '<th style="text-align:left; padding: 0.5rem 1rem 0.5rem 0;">Datum</th>'
+                + '<th style="text-align:left; padding: 0.5rem 1rem 0.5rem 0;">Inserat</th>'
+                + '<th style="text-align:left; padding: 0.5rem 1rem 0.5rem 0;">Von</th>'
+                + '<th style="text-align:left; padding: 0.5rem 1rem 0.5rem 0;">Nachricht</th></tr></thead><tbody>';
+              for (var i = 0; i < liste.length; i++) {
+                var a = liste[i];
+                html += '<tr>'
+                  + '<td style="vertical-align:top; padding: 0.5rem 1rem 0.5rem 0; border-top: 1px solid var(--linie); white-space: nowrap;">' + esc(String(a.created_at).slice(0, 16).replace('T', ' ')) + '</td>'
+                  + '<td style="vertical-align:top; padding: 0.5rem 1rem 0.5rem 0; border-top: 1px solid var(--linie);">' + esc(a.inserat_titel || '-') + '</td>'
+                  + '<td style="vertical-align:top; padding: 0.5rem 1rem 0.5rem 0; border-top: 1px solid var(--linie);">' + esc(a.name) + '<br>' + esc(a.email) + '</td>'
+                  + '<td style="vertical-align:top; padding: 0.5rem 0 0.5rem 0; border-top: 1px solid var(--linie);">' + esc((a.nachricht || '').slice(0, 200)) + '</td>'
+                  + '</tr>';
+              }
+              html += '</tbody></table>';
+              anfListe.innerHTML = html;
+            })
+            .catch(function () {
+              anfListe.innerHTML = '<p class="section-note">Anfragen konnten nicht geladen werden.</p>';
+            });
+        }
+
+        modListe.addEventListener('click', function (e) {
+          var btn = e.target && e.target.closest ? e.target.closest('[data-mod-id]') : null;
+          if (!btn) { return; }
+          btn.disabled = true;
+          AUTH.rest('/inserate?id=eq.' + encodeURIComponent(btn.getAttribute('data-mod-id')), {
+            method: 'PATCH',
+            headers: { Prefer: 'return=minimal' },
+            body: JSON.stringify({ status: btn.getAttribute('data-mod-status') })
+          }).then(function (res) {
+            if (!res.ok) { throw new Error('HTTP ' + res.status); }
+            ladeModeration();
+          }).catch(function () {
+            btn.disabled = false;
+          });
+        });
+
+        ladeModeration();
+        ladeAnfragen();
+      }
+
       var AUTH = window.WS_AUTH;
       if (AUTH && AUTH.aktiv()) {
         AUTH.sitzung().then(function (s) {
-          if (s) { echterModus(s); } else { demoModus(true); }
+          if (!s) { demoModus(true); return; }
+          echterModus(s);
+          var daten = AUTH.tokenDaten(s.access_token);
+          AUTH.rest('/profile?select=rolle&id=eq.' + encodeURIComponent(daten.sub || ''))
+            .then(function (res) { return res.ok ? res.json() : []; })
+            .then(function (p) {
+              if (p[0] && p[0].rolle === 'admin') { adminBereich(); }
+            });
         });
       } else {
         demoModus(false);

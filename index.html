@@ -82,15 +82,15 @@
           </div>
         </form>
 
-        <p class="hero-status"><span class="status-dot" aria-hidden="true"></span>Signal aktiv · alle Inserate sind Beispieldaten</p>
+        <p class="hero-status"><span class="status-dot" aria-hidden="true"></span>Signal aktiv · Beispieldaten sind gekennzeichnet</p>
       </div>
     </section>
 
     <!-- ticker-band -->
     <div class="ticker">
       <div class="ticker-track">
-        <span>Dein nächstes Zuhause sendet schon · Mieten und Kaufen in Baden-Württemberg · klar beschrieben · ehrlich ausgezeichnet · Prototyp mit Beispieldaten · </span>
-        <span aria-hidden="true">Dein nächstes Zuhause sendet schon · Mieten und Kaufen in Baden-Württemberg · klar beschrieben · ehrlich ausgezeichnet · Prototyp mit Beispieldaten · </span>
+        <span>Dein nächstes Zuhause sendet schon · Mieten und Kaufen in Baden-Württemberg · klar beschrieben · ehrlich ausgezeichnet · Demo-Portal, Beispieldaten gekennzeichnet · </span>
+        <span aria-hidden="true">Dein nächstes Zuhause sendet schon · Mieten und Kaufen in Baden-Württemberg · klar beschrieben · ehrlich ausgezeichnet · Demo-Portal, Beispieldaten gekennzeichnet · </span>
       </div>
     </div>
 
@@ -99,7 +99,7 @@
       <div class="container">
         <p class="kicker">Inserate</p>
         <h2 id="neu-titel">Neu im Portal</h2>
-        <p class="section-note">Die neuesten Beispielinserate, direkt aus dem Datenbestand geladen — mit Preis, Fläche und Bezugstermin ohne Versteckspiel.</p>
+        <p class="section-note">Die neuesten Inserate, direkt aus dem Datenbestand geladen — mit Preis, Fläche und Bezugstermin ohne Versteckspiel; jede Karte nennt ihre Quelle.</p>
         <div class="karten-grid" id="neu-grid" style="margin-top:2.2rem"></div>
         <noscript>
           <p class="section-note" style="margin-top:1.2rem">Diese Ansicht braucht JavaScript, um die Beispielinserate zu laden.</p>
@@ -155,7 +155,7 @@
             <p class="kicker" style="margin-bottom:0">Beispieldaten</p>
           </li>
         </ul>
-        <p class="section-note" style="margin-top:1.8rem">Inserate und Orte zur Laufzeit gezählt · Beispieldaten per Definition des Prototyps.</p>
+        <p class="section-note" style="margin-top:1.8rem">Inserate und Orte zur Laufzeit gezählt — der Anteil Beispieldaten wird ehrlich ausgewiesen.</p>
       </div>
     </section>
 
@@ -167,7 +167,7 @@
       <div>
         <h3>wohnsignal</h3>
         <p class="footer-claim">Dein nächstes Zuhause sendet schon.</p>
-        <p class="footer-hinweis">Prototyp · alle Inserate sind beispieldaten</p>
+        <p class="footer-hinweis">Demo-Portal · beispieldaten sind gekennzeichnet</p>
         <p class="footer-hinweis">Ein Demo-Projekt von TOMORROWWORKS</p>
       </div>
       <div>
@@ -191,8 +191,9 @@
   </footer>
   <!-- /ws:footer -->
 
+  <script src="konfig.js?v=2" defer></script>
   <script src="data.js?v=5" defer></script>
-  <script src="app.js?v=5" defer></script>
+  <script src="app.js?v=6" defer></script>
   <script>
   (function () {
     'use strict';
@@ -295,8 +296,33 @@
       }
       setText('stat-inserate', String(DATA.listings.length));
       setText('stat-orte', String(anzahlOrte));
-      /* per konvention ist jedes inserat dieses prototyps fiktiv */
+      /* initial nur beispieldaten — der nachlade-pass unten korrigiert den anteil */
       setText('stat-beispiel', '100 %');
+
+      /* phase 2: freigegebene portal-inserate nachladen — grid und zahlen ehrlich aktualisieren */
+      WS.ladePortalInserate().then(function (echte) {
+        if (!echte.length) { return; }
+        var alle = echte.concat(DATA.listings);
+        if (grid) {
+          var neueAlle = [];
+          for (var n = 0; n < alle.length; n++) { if (alle[n].neu) { neueAlle.push(alle[n]); } }
+          var html2 = '';
+          for (var m = 0; m < neueAlle.length; m++) { html2 += WS.renderCard(neueAlle[m]); }
+          grid.innerHTML = html2;
+          var karten2 = grid.querySelectorAll('.karte');
+          for (var k2 = 0; k2 < karten2.length; k2++) { karten2[k2].classList.add('reveal', 'sichtbar'); }
+          WS.syncFavButtons(grid);
+        }
+        var orte2 = {};
+        for (var o2 = 0; o2 < alle.length; o2++) { orte2[alle[o2].ort] = true; }
+        var anzahlOrte2 = 0;
+        for (var key2 in orte2) {
+          if (Object.prototype.hasOwnProperty.call(orte2, key2)) { anzahlOrte2++; }
+        }
+        setText('stat-inserate', String(alle.length));
+        setText('stat-orte', String(anzahlOrte2));
+        setText('stat-beispiel', Math.round(DATA.listings.length / alle.length * 100) + ' %');
+      });
     });
   })();
   </script>

@@ -469,6 +469,49 @@
       + '</svg>';
   }
 
+  /* ---------- portal-inserate aus der datenbank (phase 2) ----------
+     aktive, redaktionell freigegebene inserate — anonym lesbar via RLS.
+     ohne konfiguration oder bei fehlern: leere liste, die demo bleibt intakt. */
+
+  function dbZuListing(r) {
+    var vierzehnTage = 14 * 24 * 60 * 60 * 1000;
+    var alter = Date.now() - new Date(r.created_at).getTime();
+    return {
+      id: r.id,
+      foto: null,
+      fotos: [],
+      titel: r.titel,
+      typ: r.typ,
+      angebot: r.angebot,
+      ort: r.ort,
+      kreis: r.kreis,
+      plz: r.plz,
+      strasse: r.strasse,
+      preisEur: r.preis_eur,
+      zimmer: parseFloat(r.zimmer),
+      flaecheM2: r.flaeche_m2,
+      etage: r.etage || '',
+      verfuegbarAb: r.verfuegbar_ab || 'nach Vereinbarung',
+      merkmale: r.merkmale || [],
+      beschreibung: r.beschreibung || '',
+      sceneHint: '',
+      neu: alter < vierzehnTage,
+      quelle: 'portal'
+    };
+  }
+
+  function ladePortalInserate() {
+    var konf = window.WS_KONFIG || {};
+    if (!konf.supabaseUrl || !konf.supabaseAnonKey) { return Promise.resolve([]); }
+    return fetch(konf.supabaseUrl + '/rest/v1/inserate'
+      + '?status=eq.aktiv&order=created_at.desc'
+      + '&select=id,titel,typ,angebot,ort,kreis,plz,strasse,preis_eur,zimmer,flaeche_m2,etage,verfuegbar_ab,merkmale,beschreibung,created_at', {
+      headers: { apikey: konf.supabaseAnonKey, Authorization: 'Bearer ' + konf.supabaseAnonKey }
+    }).then(function (res) { return res.ok ? res.json() : []; })
+      .then(function (liste) { return liste.map(dbZuListing); })
+      .catch(function () { return []; });
+  }
+
   /* ---------- inserat-karte ---------- */
 
   var HERZ = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.5-9-9c-1.2-2.8.6-6 3.8-6 2 0 3.4 1.2 5.2 3.4C13.8 6.2 15.2 5 17.2 5c3.2 0 5 3.2 3.8 6-2 4.5-9 9-9 9z"/></svg>';
@@ -513,7 +556,8 @@
       + (listing.angebot === 'kauf' ? ' <span class="preis-zusatz">Kaufpreis</span>' : '')
       + '</p>'
       + '<ul class="tags">' + tags + '</ul>'
-      + '<p class="karte-meta">' + escapeHtml(listing.etage) + ' · Bezug ' + escapeHtml(listing.verfuegbarAb) + '</p>'
+      + '<p class="karte-meta">' + escapeHtml(listing.etage) + ' · Bezug ' + escapeHtml(listing.verfuegbarAb)
+      + (listing.quelle === 'portal' ? ' · Portal-Inserat' : ' · Beispieldaten') + '</p>'
       + '</div>'
       + '</article>';
   }
@@ -577,6 +621,7 @@
   /* ---------- api ---------- */
 
   window.WS = {
+    ladePortalInserate: ladePortalInserate,
     formatEur: formatEur,
     formatPreis: formatPreis,
     formatZimmer: formatZimmer,

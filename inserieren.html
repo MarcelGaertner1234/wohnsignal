@@ -92,8 +92,8 @@
       <div class="container">
         <p class="kicker">Portal / Inserieren</p>
         <h1>Inserat aufgeben</h1>
-        <p class="section-note">Beschreibe dein Objekt Schritt für Schritt und sieh rechts daneben die Inserat-Karte live entstehen — der Entwurf bleibt vollständig auf deinem Gerät.</p>
-        <p class="hero-status"><span class="status-dot" aria-hidden="true"></span>Entwurfsmodus · es werden keine Daten versendet</p>
+        <p class="section-note">Beschreibe dein Objekt Schritt für Schritt und sieh rechts daneben die Inserat-Karte live entstehen. Eingereicht wird erst, wenn du angemeldet bist und bewusst auf «Einreichen» klickst.</p>
+        <p class="hero-status"><span class="status-dot" aria-hidden="true"></span><span id="inserieren-status">Entwurfsmodus · es werden keine Daten versendet</span></p>
       </div>
     </section>
 
@@ -106,6 +106,10 @@
 
               <section class="zettel-block" aria-labelledby="zt-objekt">
                 <h2 class="zettel-titel" id="zt-objekt">Objekt</h2>
+                <div>
+                  <label for="titel">Titel (optional — sonst aus deinen Angaben gebildet)</label>
+                  <input id="titel" name="titel" type="text" maxlength="120" placeholder="z. B. Helle 3-Zimmer-Wohnung mit Balkon">
+                </div>
                 <div class="feld-reihe">
                   <div>
                     <label for="typ">Objekttyp</label>
@@ -244,10 +248,12 @@
                 </div>
               </section>
 
-              <p class="form-hinweis">Vorschau-Modus: Dieses Formular sendet keine Daten.</p>
+              <p class="form-hinweis" id="modus-hinweis">Vorschau-Modus: Dieses Formular sendet keine Daten.</p>
               <div>
-                <button type="submit" class="btn btn--primaer">Vorschau prüfen</button>
+                <button type="submit" class="btn btn--sekundaer">Vorschau prüfen</button>
+                <button type="button" class="btn btn--primaer" id="einreichen-btn" hidden>Inserat einreichen</button>
               </div>
+              <p class="form-hinweis" id="einreichen-login-hinweis" hidden>Zum Einreichen bitte zuerst <a href="anmelden.html">anmelden</a> — die Vorschau funktioniert auch ohne Konto.</p>
               <p class="form-hinweis" id="submit-status" role="status" tabindex="-1" hidden></p>
 
             </form>
@@ -301,7 +307,7 @@
       <div>
         <h3>wohnsignal</h3>
         <p class="footer-claim">Dein nächstes Zuhause sendet schon.</p>
-        <p class="footer-hinweis">Prototyp · alle Inserate sind beispieldaten</p>
+        <p class="footer-hinweis">Demo-Portal · beispieldaten sind gekennzeichnet</p>
         <p class="footer-hinweis">Ein Demo-Projekt von TOMORROWWORKS</p>
       </div>
       <div>
@@ -325,8 +331,10 @@
   </footer>
   <!-- /ws:footer -->
 
+  <script src="konfig.js?v=2" defer></script>
+  <script src="auth.js?v=1" defer></script>
   <script src="data.js?v=5" defer></script>
-  <script src="app.js?v=5" defer></script>
+  <script src="app.js?v=6" defer></script>
   <script>
     /* seiten-logik inserieren — laeuft nach data.js/app.js (defer), daher in DOMContentLoaded */
     document.addEventListener('DOMContentLoaded', function () {
@@ -431,6 +439,99 @@
       });
 
       render();
+
+      /* ---------- echtes einreichen (phase 2, nur angemeldet) ----------
+         der klick auf «Inserat einreichen» speichert mit status «eingereicht»
+         in der datenbank — live geht es erst nach freigabe durch die redaktion. */
+      var AUTH = window.WS_AUTH;
+      var einreichenBtn = document.getElementById('einreichen-btn');
+      var loginHinweis = document.getElementById('einreichen-login-hinweis');
+      var kopfStatus = document.getElementById('inserieren-status');
+      var modusHinweis = document.getElementById('modus-hinweis');
+
+      function sammleEinreichung(uid) {
+        var fehlt = [];
+        if (feldwert('titel') && feldwert('titel').length < 5) { fehlt.push('Titel (mind. 5 Zeichen)'); }
+        if (!feldwert('ort')) { fehlt.push('Ort'); }
+        if (!/^[0-9]{5}$/.test(feldwert('plz'))) { fehlt.push('PLZ (5-stellig)'); }
+        if (!feldwert('strasse')) { fehlt.push('Straße und Hausnummer'); }
+        if (!feldwert('kreis')) { fehlt.push('Landkreis'); }
+        if (!(parseInt(feldwert('preis'), 10) > 0)) { fehlt.push('Preis'); }
+        if (!(parseInt(feldwert('flaeche'), 10) > 0)) { fehlt.push('Fläche'); }
+        if (!feldwert('beschreibung')) { fehlt.push('Beschreibung'); }
+        if (fehlt.length) { return { fehlt: fehlt }; }
+        var vorschauDaten = buildListing();
+        return {
+          daten: {
+            owner: uid,
+            status: 'eingereicht',
+            titel: feldwert('titel') || vorschauDaten.titel,
+            typ: vorschauDaten.typ,
+            angebot: vorschauDaten.angebot,
+            ort: feldwert('ort'),
+            kreis: feldwert('kreis'),
+            plz: feldwert('plz'),
+            strasse: feldwert('strasse'),
+            preis_eur: parseInt(feldwert('preis'), 10),
+            zimmer: vorschauDaten.zimmer,
+            flaeche_m2: parseInt(feldwert('flaeche'), 10),
+            etage: feldwert('etage'),
+            verfuegbar_ab: feldwert('verfuegbar') || 'nach Vereinbarung',
+            merkmale: vorschauDaten.merkmale,
+            beschreibung: feldwert('beschreibung')
+          }
+        };
+      }
+
+      if (AUTH && AUTH.aktiv()) {
+        AUTH.sitzung().then(function (s) {
+          if (!s) {
+            if (loginHinweis) { loginHinweis.hidden = false; }
+            return;
+          }
+          var nutzer = AUTH.tokenDaten(s.access_token);
+          if (einreichenBtn) { einreichenBtn.hidden = false; }
+          if (kopfStatus) {
+            kopfStatus.textContent = 'Angemeldet als ' + (nutzer.email || 'unbekannt')
+              + ' · Einreichen aktiv — Veröffentlichung erst nach Prüfung';
+          }
+          if (modusHinweis) {
+            modusHinweis.textContent = '«Vorschau prüfen» bleibt lokal. «Inserat einreichen» speichert deinen Entwurf zur Prüfung — mit dem Einreichen bestätigst du die Richtigkeit deiner Angaben.';
+          }
+          if (einreichenBtn) {
+            einreichenBtn.addEventListener('click', function () {
+              var e = sammleEinreichung(nutzer.sub);
+              if (e.fehlt) {
+                status.textContent = 'Bitte ergänzen: ' + e.fehlt.join(', ') + '.';
+                status.hidden = false;
+                try { status.focus(); } catch (err) { /* egal */ }
+                return;
+              }
+              einreichenBtn.disabled = true;
+              status.textContent = 'Inserat wird eingereicht …';
+              status.hidden = false;
+              AUTH.rest('/inserate', {
+                method: 'POST',
+                headers: { Prefer: 'return=representation' },
+                body: JSON.stringify(e.daten)
+              }).then(function (res) {
+                if (res.ok) {
+                  status.textContent = 'Eingereicht! Dein Inserat wartet jetzt auf die Freigabe der Redaktion — den Status siehst du in deinem Bereich.';
+                  return null;
+                }
+                return res.json().catch(function () { return {}; }).then(function (d) {
+                  status.textContent = 'Einreichen fehlgeschlagen (' + (d.message || 'HTTP ' + res.status) + ') — bitte Angaben prüfen.';
+                });
+              }).catch(function () {
+                status.textContent = 'Einreichen fehlgeschlagen — bitte Verbindung prüfen und erneut versuchen.';
+              }).then(function () {
+                einreichenBtn.disabled = false;
+                try { status.focus(); } catch (err) { /* egal */ }
+              });
+            });
+          }
+        });
+      }
     });
   </script>
 </body>

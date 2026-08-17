@@ -201,7 +201,7 @@
       <div>
         <h3>wohnsignal</h3>
         <p class="footer-claim">Dein nächstes Zuhause sendet schon.</p>
-        <p class="footer-hinweis">Prototyp · alle Inserate sind beispieldaten</p>
+        <p class="footer-hinweis">Demo-Portal · beispieldaten sind gekennzeichnet</p>
         <p class="footer-hinweis">Ein Demo-Projekt von TOMORROWWORKS</p>
       </div>
       <div>
@@ -225,8 +225,9 @@
   </footer>
   <!-- /ws:footer -->
 
+  <script src="konfig.js?v=2" defer></script>
   <script src="data.js?v=5" defer></script>
-  <script src="app.js?v=5" defer></script>
+  <script src="app.js?v=6" defer></script>
   <script>
   /* resultate.html — seitenlogik: filtern, sortieren, url-sync (laeuft nach data.js/app.js, da DOMContentLoaded) */
   (function () {
@@ -606,7 +607,12 @@
         if (state.merkliste) { render(); }
       });
 
-      update();
+      /* phase 2: freigegebene portal-inserate VOR den beispieldaten einmischen;
+         gerendert wird, sobald der bestand vollstaendig ist (fallback: nur demo) */
+      WS.ladePortalInserate().then(function (echte) {
+        if (echte.length) { DATA = { listings: echte.concat(DATA.listings) }; }
+        update();
+      });
     });
   })();
   </script>

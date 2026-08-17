@@ -472,6 +472,23 @@ check('27. mein-bereich.html: echter modus haengt an der WS_AUTH-sitzung',
 check('27. mein-bereich.html: demo-zahlen werden im echten konto ausgeblendet',
   src['mein-bereich.html'].includes('demo-uebersicht'));
 
+/* --- 28. inserieren produktiv + moderation + portal-anzeige (P2-3) --- */
+check('28. inserieren.html: einreichen nur mit konto (button + auth)',
+  src['inserieren.html'].includes('einreichen-btn') && src['inserieren.html'].includes('auth.js?v='));
+check('28. inserieren.html: einreichung landet als "eingereicht" (moderations-gate)',
+  src['inserieren.html'].includes("'eingereicht'"));
+check('28. mein-bereich.html: admin-moderation vorhanden',
+  src['mein-bereich.html'].includes('admin-bereich') && src['mein-bereich.html'].includes('data-mod-status'));
+check('28. app.js: portal-inserate laden + quelle kennzeichnen',
+  src['app.js'].includes('ladePortalInserate') && src['app.js'].includes("quelle: 'portal'"));
+check('28. app.js: jede karte nennt ihre quelle (beispieldaten vs. portal)',
+  src['app.js'].includes('Portal-Inserat') && src['app.js'].includes('Beispieldaten'));
+check('28. resultate.html: mischt portal-inserate ein', src['resultate.html'].includes('ladePortalInserate'));
+check('28. index.html: nachlade-pass mit ehrlichem beispieldaten-anteil',
+  src['index.html'].includes('ladePortalInserate') && src['index.html'].includes('stat-beispiel'));
+check('28. inserat.html: portal-inserate per id ladbar (istEcht-pfad)',
+  src['inserat.html'].includes('istEcht') && src['inserat.html'].includes('ladePortalInserate'));
+
 /* --- 15. hero-hintergrundbild auf der startseite --- */
 check('15. index.html: hero-bild-element vorhanden', src['index.html'].includes('class="hero-bild"'));
 check('15. styles.css: hero-bild referenziert assets/hero-zuhause.webp',

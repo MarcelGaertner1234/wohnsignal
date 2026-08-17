@@ -92,8 +92,8 @@
 
     <div class="ticker" id="ticker-band">
       <div class="ticker-track">
-        <span>Prototyp · alle Inserate sind Beispieldaten · Formulare senden keine Daten · Beispielfotos zeigen nicht die Objekte ·</span>
-        <span aria-hidden="true">Prototyp · alle Inserate sind Beispieldaten · Formulare senden keine Daten · Beispielfotos zeigen nicht die Objekte ·</span>
+        <span>Demo-Portal · Bestand aus gekennzeichneten Beispieldaten · Anfragen werden echt übermittelt · Beispielfotos zeigen nicht die Objekte ·</span>
+        <span aria-hidden="true">Demo-Portal · Bestand aus gekennzeichneten Beispieldaten · Anfragen werden echt übermittelt · Beispielfotos zeigen nicht die Objekte ·</span>
       </div>
     </div>
 
@@ -203,7 +203,7 @@
       <div>
         <h3>wohnsignal</h3>
         <p class="footer-claim">Dein nächstes Zuhause sendet schon.</p>
-        <p class="footer-hinweis">Prototyp · alle Inserate sind beispieldaten</p>
+        <p class="footer-hinweis">Demo-Portal · beispieldaten sind gekennzeichnet</p>
         <p class="footer-hinweis">Ein Demo-Projekt von TOMORROWWORKS</p>
       </div>
       <div>
@@ -229,7 +229,7 @@
 
   <script src="konfig.js?v=2" defer></script>
   <script src="data.js?v=5" defer></script>
-  <script src="app.js?v=5" defer></script>
+  <script src="app.js?v=6" defer></script>
 <script>
 /* inserat.html — seitenlogik. laeuft nach data.js + app.js (beide defer),
    deshalb alles im DOMContentLoaded-handler. */
@@ -251,9 +251,9 @@
 
     var id = window.WS.qs('id');
     var inserat = id ? window.WS.getListing(id) : null;
+    var istEcht = false;
 
-    /* ---------- fehlerzustand: fehlende oder unbekannte id ---------- */
-    if (!inserat) {
+    function zeigeFehler() {
       document.title = 'Inserat nicht gefunden · wohnsignal';
       var verstecken = ['kopf', 'ticker-band', 'daten', 'galerie-sektion', 'anfrage', 'aehnliche-sektion'];
       for (var v = 0; v < verstecken.length; v++) {
@@ -261,8 +261,24 @@
         if (knoten) { knoten.hidden = true; }
       }
       if (el('fehler')) { el('fehler').hidden = false; }
-      return;
     }
+
+    /* beispieldaten sofort; unbekannte ids koennen ein freigegebenes
+       portal-inserat aus der datenbank sein (phase 2) */
+    if (inserat) {
+      zeige();
+    } else if (id && window.WS.ladePortalInserate) {
+      window.WS.ladePortalInserate().then(function (echte) {
+        for (var pi = 0; pi < echte.length; pi++) {
+          if (echte[pi].id === id) { inserat = echte[pi]; istEcht = true; break; }
+        }
+        if (inserat) { zeige(); } else { zeigeFehler(); }
+      });
+    } else {
+      zeigeFehler();
+    }
+
+    function zeige() {
 
     document.title = inserat.titel + ' — wohnsignal';
     var istMiete = inserat.angebot === 'miete';
@@ -285,10 +301,27 @@
       el('kopf-caption').textContent = 'Beispielfoto (Symbolbild) — zeigt nicht das inserierte Objekt';
     } else {
       el('kopf-szene').innerHTML = window.WS.renderScene(inserat, 'hero');
+      if (istEcht) {
+        el('kopf-caption').textContent = 'Designvisualisierung — für dieses Portal-Inserat ist noch kein Foto hinterlegt';
+      }
     }
 
-    var badges = '<span class="badge badge--beispiel">beispielinserat</span>';
+    var badges = istEcht
+      ? '<span class="badge badge--beispiel">portal-inserat · geprüft</span>'
+      : '<span class="badge badge--beispiel">beispielinserat</span>';
     if (inserat.neu) { badges += ' <span class="badge badge--neu">neu</span>'; }
+
+    /* echte portal-inserate: die beispieldaten-texte stimmen dort nicht — umschalten */
+    if (istEcht) {
+      var tickerSpans = document.querySelectorAll('#ticker-band .ticker-track span');
+      for (var ts = 0; ts < tickerSpans.length; ts++) {
+        tickerSpans[ts].textContent = 'Geprüftes Portal-Inserat · Angaben vom Inserenten · Anfragen werden echt übermittelt · ';
+      }
+      var kostenCaption = document.querySelector('#daten .bildunterschrift');
+      if (kostenCaption) { kostenCaption.textContent = 'Angaben des Inserenten — keine Offerte.'; }
+      var galerieNote = document.querySelector('#galerie-sektion .section-note');
+      if (galerieNote) { galerieNote.textContent = 'Grundriss-Schema und Lageplan als Visualisierung — Fotos folgen, sobald der Bild-Upload freigeschaltet ist.'; }
+    }
 
     var adresse = inserat.strasse + ' · ' + inserat.plz + ' ' + inserat.ort;
 
@@ -305,7 +338,8 @@
       + ' aria-pressed="' + gemerkt + '">' + HERZ + '<span data-merken-text>Merken</span></button>'
       + '<button type="button" class="btn btn--invers" id="expose-drucken">Exposé drucken</button>'
       + '</div>'
-      + '<p class="hero-status"><span class="status-dot" aria-hidden="true"></span>Signal aktiv · Beispieldaten</p>';
+      + '<p class="hero-status"><span class="status-dot" aria-hidden="true"></span>Signal aktiv · '
+      + (istEcht ? 'geprüftes Portal-Inserat' : 'Beispieldaten') + '</p>';
 
     /* expose = browser-druckdialog; das print-stylesheet formt die seite */
     var druckenBtn = el('expose-drucken');
@@ -525,6 +559,8 @@
 
     window.WS.syncFavButtons();
     window.WS.initReveals();
+
+    } /* ende zeige() */
   });
 })();
 </script>
