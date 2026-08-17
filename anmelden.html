@@ -46,8 +46,8 @@
       <div class="container">
         <p class="kicker">Portal / Anmelden</p>
         <h1>Anmelden</h1>
-        <p class="section-note">Im echten Portal meldest du dich hier mit deiner E-Mail-Adresse an. Diese Demo hat bewusst keine Konten — und fragt deshalb auch nie nach einem Passwort.</p>
-        <p class="hero-status"><span class="status-dot" aria-hidden="true"></span>Demo-Vorschau · es werden keine Zugangsdaten erhoben</p>
+        <p class="section-note">Melde dich mit deiner E-Mail-Adresse an — wir senden dir einen Anmeldelink. Passwörter gibt es bei wohnsignal bewusst nicht.</p>
+        <p class="hero-status"><span class="status-dot" aria-hidden="true"></span><span id="login-status-zeile">Anmeldung per E-Mail-Link · ohne Passwort</span></p>
       </div>
     </section>
 
@@ -55,23 +55,45 @@
       <div class="container" style="max-width:720px">
         <div class="zettel">
 
-          <div class="zettel-block">
-            <h2 class="zettel-titel">Beispiel-Konto betreten</h2>
-            <p class="section-note">Ein Klick genügt: Du siehst den Inserenten-Bereich so, wie ihn ein Vermieter aus Mosbach mit zwei aktiven Inseraten sehen würde — mit fiktiven Zahlen, ohne Anmeldung, ohne Formular.</p>
-            <p style="margin-top:1rem"><a class="btn btn--primaer" href="mein-bereich.html">Beispiel-Konto betreten (Demo)</a></p>
+          <div class="zettel-block" id="login-block">
+            <h2 class="zettel-titel">Mit E-Mail anmelden</h2>
+            <p class="section-note" id="login-hinweis">Trage deine E-Mail-Adresse ein — der Anmeldelink kommt in wenigen Minuten an. Neue Adressen erhalten automatisch ein Konto.</p>
+            <form class="formular" id="login-formular" style="margin-top:1rem">
+              <div>
+                <label for="login-email">E-Mail</label>
+                <input type="email" id="login-email" name="email" required autocomplete="email" placeholder="name@beispiel.de">
+              </div>
+              <div style="margin-top:0.9rem">
+                <button type="submit" class="btn btn--primaer">Anmeldelink senden</button>
+              </div>
+              <p class="form-hinweis" id="login-status" role="status" tabindex="-1" hidden></p>
+            </form>
+            <div id="login-angemeldet" hidden>
+              <p class="section-note">Du bist angemeldet als <strong id="login-email-anzeige"></strong>.</p>
+              <p style="margin-top:1rem">
+                <a class="btn btn--primaer" href="mein-bereich.html">Zu meinem Bereich</a>
+                <button type="button" class="btn btn--sekundaer" id="logout-btn">Abmelden</button>
+              </p>
+            </div>
           </div>
 
           <div class="zettel-block">
-            <h2 class="zettel-titel">So funktioniert es im echten Portal</h2>
+            <h2 class="zettel-titel">Oder erst mal nur schauen</h2>
+            <p class="section-note">Ohne Anmeldung: Das Beispiel-Konto zeigt den Inserenten-Bereich, wie ihn ein Vermieter aus Mosbach sehen würde — mit fiktiven Zahlen, klar als Demo gekennzeichnet.</p>
+            <p style="margin-top:1rem"><a class="btn btn--sekundaer" href="mein-bereich.html">Beispiel-Konto ansehen (Demo)</a></p>
+          </div>
+
+          <div class="zettel-block">
+            <h2 class="zettel-titel">Was dein Konto kann</h2>
             <ol class="schritte" style="margin-top:1rem">
-              <li class="schritt"><div><h3>Konto mit E-Mail</h3><p class="section-note">Registrierung per E-Mail mit Bestätigungslink — sicher und ohne Passwort-Zettelwirtschaft.</p></div></li>
-              <li class="schritt"><div><h3>Merkliste überall</h3><p class="section-note">Gemerkte Inserate wandern vom Gerät ins Konto — Handy, Tablet und Laptop zeigen dieselbe Liste.</p></div></li>
-              <li class="schritt"><div><h3>Inserate und Suchaufträge</h3><p class="section-note">Vermieter verwalten ihre Inserate und Anfragen, Suchende erhalten neue Treffer als Suchauftrag per E-Mail.</p></div></li>
+              <li class="schritt"><div><h3>Konto mit E-Mail</h3><p class="section-note">Anmeldung per Bestätigungslink — sicher und ohne Passwort-Zettelwirtschaft.</p></div></li>
+              <li class="schritt"><div><h3>Eigene Inserate</h3><p class="section-note">Inserate einreichen und verwalten — nach Freigabe durch die Redaktion gehen sie live. (Wird gerade freigeschaltet.)</p></div></li>
+              <li class="schritt"><div><h3>Bald: Merkliste überall &amp; Suchaufträge</h3><p class="section-note">Gemerkte Inserate im Konto statt nur auf dem Gerät, neue Treffer per E-Mail — kommt in einer nächsten Ausbaustufe.</p></div></li>
             </ol>
           </div>
 
         </div>
-        <p class="bildunterschrift">Konten, Anmeldung und Suchaufträge sind Teil der Ausbaustufe mit Backend — in dieser Demo bleibt alles auf deinem Gerät.</p>
+        <p class="bildunterschrift">Zur Anmeldung wird deine E-Mail-Adresse verarbeitet — Details in der Datenschutzerklärung. Der Bestand ist weiterhin als Beispieldaten gekennzeichnet.</p>
       </div>
     </section>
 
@@ -107,5 +129,74 @@
   </footer>
   <!-- /ws:footer -->
 
+  <script src="konfig.js?v=2" defer></script>
+  <script src="auth.js?v=1" defer></script>
+  <script>
+    /* anmelden — magic-link-login; ohne konfiguration bleibt nur das beispiel-konto */
+    document.addEventListener('DOMContentLoaded', function () {
+      'use strict';
+      var AUTH = window.WS_AUTH;
+      var form = document.getElementById('login-formular');
+      var status = document.getElementById('login-status');
+      var angemeldetBox = document.getElementById('login-angemeldet');
+      var emailAnzeige = document.getElementById('login-email-anzeige');
+      var statusZeile = document.getElementById('login-status-zeile');
+      var hinweis = document.getElementById('login-hinweis');
+
+      if (!AUTH || !AUTH.aktiv()) {
+        if (form) { form.hidden = true; }
+        if (hinweis) { hinweis.textContent = 'Das Login ist in dieser Demo-Konfiguration nicht aktiviert — nutze unten das Beispiel-Konto.'; }
+        return;
+      }
+
+      /* rueckkehr vom mail-link: token uebernehmen und weiterleiten */
+      var frisch = AUTH.verarbeiteCallback();
+
+      function zeigeAngemeldet(s) {
+        var daten = AUTH.tokenDaten(s.access_token);
+        if (emailAnzeige) { emailAnzeige.textContent = daten.email || 'unbekannt'; }
+        if (form) { form.hidden = true; }
+        if (angemeldetBox) { angemeldetBox.hidden = false; }
+        if (statusZeile) { statusZeile.textContent = 'Angemeldet als ' + (daten.email || 'unbekannt'); }
+      }
+
+      AUTH.sitzung().then(function (s) {
+        if (!s) { return; }
+        if (frisch) { window.location.href = 'mein-bereich.html'; return; }
+        zeigeAngemeldet(s);
+      });
+
+      if (form) {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var feld = document.getElementById('login-email');
+          var email = feld ? feld.value.trim() : '';
+          if (!email) { return; }
+          var knopf = form.querySelector('button[type="submit"]');
+          if (knopf) { knopf.disabled = true; }
+          if (status) {
+            status.textContent = 'Anmeldelink wird angefordert …';
+            status.hidden = false;
+          }
+          AUTH.login(email, window.location.origin + window.location.pathname).then(function (r) {
+            if (status) {
+              status.textContent = r.ok
+                ? 'Fertig! Öffne dein Postfach (' + email + ') und klicke auf den Anmeldelink — er ist eine Stunde gültig.'
+                : 'Anfordern fehlgeschlagen (' + (r.fehler || 'unbekannt') + ') — bitte versuche es später erneut.';
+              try { status.focus(); } catch (err) { /* egal */ }
+            }
+            if (knopf) { knopf.disabled = false; }
+          });
+        });
+      }
+
+      var logoutBtn = document.getElementById('logout-btn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', function () {
+          AUTH.abmelden().then(function () { window.location.reload(); });
+        });
+      }
+    });
+  </script>
 </body>
 </html>

@@ -68,11 +68,11 @@
         <p class="kicker">Portal / Mein Bereich</p>
         <h1>Mein Bereich</h1>
         <p class="section-note">So sieht die Inserats-Verwaltung im echten Portal aus — hier als klickbare Vorschau mit fiktiven Zahlen.</p>
-        <p class="hero-status"><span class="status-dot" aria-hidden="true"></span>Demo-Vorschau · Beispiel-Konto «Vermietung Muster, Mosbach» · alle Zahlen sind Beispieldaten</p>
+        <p class="hero-status"><span class="status-dot" aria-hidden="true"></span><span id="bereich-status">Demo-Vorschau · Beispiel-Konto «Vermietung Muster, Mosbach» · alle Zahlen sind Beispieldaten</span></p>
       </div>
     </section>
 
-    <section class="hell hell--orthogonal">
+    <section class="hell hell--orthogonal" id="demo-uebersicht">
       <div class="container">
         <p class="kicker">Überblick</p>
         <h2>Letzte 30 Tage</h2>
@@ -127,7 +127,7 @@
       <div class="container">
         <p class="kicker">Verwaltung</p>
         <h2>Meine Inserate</h2>
-        <p class="section-note">Zwei Beispielinserate, wie sie ein Vermieter aus Mosbach verwalten würde. Bearbeiten und Pausieren sind in der Demo-Vorschau deaktiviert.</p>
+        <p class="section-note" id="verwaltung-note">Zwei Beispielinserate, wie sie ein Vermieter aus Mosbach verwalten würde. Bearbeiten und Pausieren sind in der Demo-Vorschau deaktiviert.</p>
         <div class="inserat-zeile" id="meine-inserate"></div>
         <noscript>
           <p class="section-note">Diese Vorschau lädt die Beispielinserate per JavaScript.</p>
@@ -195,39 +195,99 @@
   </footer>
   <!-- /ws:footer -->
 
+  <script src="konfig.js?v=2" defer></script>
+  <script src="auth.js?v=1" defer></script>
   <script src="data.js?v=5" defer></script>
   <script src="app.js?v=5" defer></script>
   <script>
-    /* mein-bereich — demo-mock: zwei mosbacher inserate mit statischen beispiel-statistiken */
+    /* mein-bereich — zwei modi:
+       mit echter sitzung: eigene inserate aus der datenbank, KEINE fantasiezahlen.
+       ohne sitzung: der klar gekennzeichnete demo-mock des beispiel-kontos. */
     document.addEventListener('DOMContentLoaded', function () {
       'use strict';
       if (!window.WS || !window.WS_DATA) { return; }
 
-      var STATISTIK = {
-        'ws-008': { status: 'Aktiv', aufrufe: 187, anfragen: 7 },
-        'ws-012': { status: 'Aktiv', aufrufe: 131, anfragen: 5 }
-      };
-
       var wrap = document.getElementById('meine-inserate');
-      if (!wrap) { return; }
-      var html = '';
-      for (var id in STATISTIK) {
-        if (!Object.prototype.hasOwnProperty.call(STATISTIK, id)) { continue; }
-        var l = window.WS.getListing(id);
-        if (!l) { continue; }
-        var st = STATISTIK[id];
-        html += '<div>'
-          + window.WS.renderCard(l)
-          + '<p class="inserat-status">'
-          + '<span class="status-dot" aria-hidden="true"></span>' + st.status
-          + ' · ' + st.aufrufe + ' Aufrufe · ' + st.anfragen + ' Anfragen (Beispieldaten)'
-          + ' <button type="button" class="btn btn--sekundaer" disabled aria-disabled="true" title="In der Demo-Vorschau deaktiviert">Bearbeiten</button>'
-          + ' <button type="button" class="btn btn--sekundaer" disabled aria-disabled="true" title="In der Demo-Vorschau deaktiviert">Pausieren</button>'
-          + '</p>'
-          + '</div>';
+      var statusZeile = document.getElementById('bereich-status');
+      var verwaltungNote = document.getElementById('verwaltung-note');
+      var demoUebersicht = document.getElementById('demo-uebersicht');
+
+      function demoModus(mitLoginHinweis) {
+        var STATISTIK = {
+          'ws-008': { status: 'Aktiv', aufrufe: 187, anfragen: 7 },
+          'ws-012': { status: 'Aktiv', aufrufe: 131, anfragen: 5 }
+        };
+        if (!wrap) { return; }
+        var html = '';
+        for (var id in STATISTIK) {
+          if (!Object.prototype.hasOwnProperty.call(STATISTIK, id)) { continue; }
+          var l = window.WS.getListing(id);
+          if (!l) { continue; }
+          var st = STATISTIK[id];
+          html += '<div>'
+            + window.WS.renderCard(l)
+            + '<p class="inserat-status">'
+            + '<span class="status-dot" aria-hidden="true"></span>' + st.status
+            + ' · ' + st.aufrufe + ' Aufrufe · ' + st.anfragen + ' Anfragen (Beispieldaten)'
+            + ' <button type="button" class="btn btn--sekundaer" disabled aria-disabled="true" title="In der Demo-Vorschau deaktiviert">Bearbeiten</button>'
+            + ' <button type="button" class="btn btn--sekundaer" disabled aria-disabled="true" title="In der Demo-Vorschau deaktiviert">Pausieren</button>'
+            + '</p>'
+            + '</div>';
+        }
+        wrap.innerHTML = html;
+        window.WS.syncFavButtons(wrap);
+        if (mitLoginHinweis && statusZeile) {
+          statusZeile.innerHTML = 'Demo-Vorschau des Beispiel-Kontos · du bist nicht angemeldet — '
+            + '<a href="anmelden.html">jetzt anmelden</a>';
+        }
       }
-      wrap.innerHTML = html;
-      window.WS.syncFavButtons(wrap);
+
+      function echterModus(s) {
+        var AUTH = window.WS_AUTH;
+        var daten = AUTH.tokenDaten(s.access_token);
+        if (demoUebersicht) { demoUebersicht.hidden = true; /* keine fantasiezahlen im echten konto */ }
+        if (statusZeile) {
+          statusZeile.innerHTML = 'Dein Konto · angemeldet als ' + window.WS.escapeHtml(daten.email || 'unbekannt')
+            + ' · <button type="button" class="btn btn--sekundaer" id="bereich-logout">Abmelden</button>';
+          var lb = document.getElementById('bereich-logout');
+          if (lb) { lb.addEventListener('click', function () { AUTH.abmelden().then(function () { window.location.href = 'anmelden.html'; }); }); }
+        }
+        if (verwaltungNote) {
+          verwaltungNote.textContent = 'Deine eingereichten und freigegebenen Inserate. Das Einreichen über die Inserieren-Seite wird gerade freigeschaltet.';
+        }
+        if (!wrap) { return; }
+        wrap.innerHTML = '<p class="section-note">Inserate werden geladen …</p>';
+        AUTH.rest('/inserate?select=id,titel,status,ort,plz,preis_eur,angebot,created_at&owner=eq.' + encodeURIComponent(daten.sub || '') + '&order=created_at.desc')
+          .then(function (res) { return res.ok ? res.json() : Promise.reject(new Error('HTTP ' + res.status)); })
+          .then(function (liste) {
+            if (!liste.length) {
+              wrap.innerHTML = '<p class="section-note">Noch keine eigenen Inserate. Sobald das Einreichen freigeschaltet ist, erscheinen sie hier — inklusive Freigabe-Status.</p>';
+              return;
+            }
+            var esc = window.WS.escapeHtml;
+            var html = '<ul class="zeilen-liste">';
+            for (var i = 0; i < liste.length; i++) {
+              var l = liste[i];
+              var preis = window.WS.formatEur(l.preis_eur) + (l.angebot === 'miete' ? ' / Monat' : '');
+              html += '<li><span class="label">' + esc(l.status) + '</span>'
+                + '<span class="wert">' + esc(l.titel) + ' · ' + esc(l.plz + ' ' + l.ort) + ' · ' + esc(preis) + '</span></li>';
+            }
+            html += '</ul>';
+            wrap.innerHTML = html;
+          })
+          .catch(function () {
+            wrap.innerHTML = '<p class="section-note">Inserate konnten nicht geladen werden — bitte Seite neu laden oder erneut anmelden.</p>';
+          });
+      }
+
+      var AUTH = window.WS_AUTH;
+      if (AUTH && AUTH.aktiv()) {
+        AUTH.sitzung().then(function (s) {
+          if (s) { echterModus(s); } else { demoModus(true); }
+        });
+      } else {
+        demoModus(false);
+      }
     });
   </script>
 </body>

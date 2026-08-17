@@ -18,7 +18,7 @@ const HTML_FILES = ['index.html', 'resultate.html', 'inserat.html', 'inserieren.
   'impressum.html', 'datenschutz.html', 'kontakt.html', '404.html', 'mein-bereich.html',
   'ratgeber.html', 'ratgeber-besichtigung.html', 'ratgeber-kaufnebenkosten.html', 'ratgeber-umzug.html',
   'anmelden.html'];
-const ALL_FILES = [...HTML_FILES, 'styles.css', 'data.js', 'app.js', 'konfig.js'];
+const ALL_FILES = [...HTML_FILES, 'styles.css', 'data.js', 'app.js', 'konfig.js', 'auth.js'];
 
 /* REGELWECHSEL 17.08.2026 (phase 2, marcel-go; doku: GO-LIVE §phase-2-kickoff):
    GENAU EIN externer host ist erlaubt — unser eigenes supabase-backend.
@@ -437,10 +437,12 @@ check('24. inserat.html: galerie rendert inserat.fotos mit symbolbild-kennzeichn
 for (const f of HTML_FILES) {
   check(`25. kein passwort-feld: ${f}`, !/type\s*=\s*"password"/i.test(src[f]));
 }
-check('25. anmelden.html: keine eingabefelder (klick-demo statt fake-login)',
-  !/<(?:input|textarea)\b/i.test(stripScripts(src['anmelden.html'])));
-check('25. anmelden.html: als demo ohne zugangsdaten gekennzeichnet',
-  src['anmelden.html'].includes('keine Zugangsdaten') && src['anmelden.html'].includes('Demo'));
+/* seit P2-2 gibt es ECHTES login — aber ausschliesslich per e-mail-link */
+check('25. anmelden.html: einzige eingabe ist das e-mail-feld',
+  !/<input(?![^>]*type="email")[^>]*>/i.test(stripScripts(src['anmelden.html']))
+  && !/<textarea\b/i.test(stripScripts(src['anmelden.html'])));
+check('25. anmelden.html: passwortlosigkeit ausdruecklich benannt',
+  src['anmelden.html'].includes('ohne Passwort') || src['anmelden.html'].includes('bewusst nicht'));
 check('25. anmelden.html: fuehrt zum beispiel-konto (mein-bereich)',
   src['anmelden.html'].includes('href="mein-bereich.html"'));
 check('25. hauptnav enthaelt anmelden-link',
@@ -455,6 +457,20 @@ check('26. inserat.html: echt-versand haengt an WS_KONFIG.anfrageEndpunkt',
 check('26. inserat.html: honeypot-feld vorhanden', src['inserat.html'].includes('name="webseite"'));
 check('26. inserat.html: vorschau-fallback ohne konfiguration bleibt bestehen',
   src['inserat.html'].includes('vorschau-modus: nichts verlaesst den browser'));
+
+/* --- 27. magic-link-login (P2-2, 17.08.2026) --- */
+check('27. konfig.js: supabaseUrl + anon-key auf erlaubtem host',
+  src['konfig.js'].includes('supabaseUrl') && src['konfig.js'].includes('supabaseAnonKey')
+  && src['konfig.js'].includes(ERLAUBTER_BACKEND_HOST));
+check('27. auth.js: magic-link (otp) als einziges login-verfahren', src['auth.js'].includes('/otp?'));
+check('27. auth.js: callback-verarbeitung und token-refresh vorhanden',
+  src['auth.js'].includes('verarbeiteCallback') && src['auth.js'].includes('refresh_token'));
+check('27. anmelden.html: bindet konfig + auth ein',
+  src['anmelden.html'].includes('konfig.js?v=') && src['anmelden.html'].includes('auth.js?v='));
+check('27. mein-bereich.html: echter modus haengt an der WS_AUTH-sitzung',
+  src['mein-bereich.html'].includes('WS_AUTH') && src['mein-bereich.html'].includes('echterModus'));
+check('27. mein-bereich.html: demo-zahlen werden im echten konto ausgeblendet',
+  src['mein-bereich.html'].includes('demo-uebersicht'));
 
 /* --- 15. hero-hintergrundbild auf der startseite --- */
 check('15. index.html: hero-bild-element vorhanden', src['index.html'].includes('class="hero-bild"'));
